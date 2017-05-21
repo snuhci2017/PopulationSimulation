@@ -2,11 +2,15 @@
   "name": "population-simulation",
   "version": "1.0.0",
   "description": "조원 : 김진형, 민세원",
+  "main": "index.js",
   "dependencies": {
-    "node-sass": "^4.5.3"
+    "express": "^4.15.3",
+    "node-sass": "^4.5.3",
+    "node-sass-middleware": "^0.11.0"
   },
   "devDependencies": {},
   "scripts": {
+    "start" : "node index.js",
     "build-css": "node-sass style/scss/ -o style/css/",
     "watch-css": "node-sass -w style/scss/ -o style/css/"
   },
