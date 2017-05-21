@@ -1,0 +1,27 @@
+
+#ring-chart {
+  margin: auto;
+  width: 58%;
+  height: 58%;
+  padding: 0;
+  vertical-align: middle;
+}
+
+#side-left, #side-right {
+  margin-top: auto;
+  margin-bottom: auto;
+  background-color: #ffaa00;
+  height: 50%;
+  width: 10%;
+  margin: 1% 1.5%;
+}
+
+#side-left {
+  float: left;
+}
+
+#side-right {
+  float: right;
+}
+
+
