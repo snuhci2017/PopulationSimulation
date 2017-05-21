@@ -1,14 +1,17 @@
-html, body{
-  background-color: #ffffbf;
+html, body {
+  background-color: #ffff0f;
   font-size: 15px;
   height: 100%;
   width: 100%;
   overflow: hidden;
   text-align: center;
   margin: 0;
+  padding: 0;
 }
 
 #main-container{
+  display: inline-block;
+  background-color: #ffffbf;
   margin-left: auto;
   margin-right: auto;
   margin-top: 0;
@@ -18,33 +21,34 @@ html, body{
 }
 
 #population-container, #factor-container{
+  display: inline-block;
   background-color: white;
   margin: 2%;
   text-align: center;
+  width: 96%;
 }
 #population-container{
+  margin-bottom: 1%;
   height: 60%;
+  vertical-align: middle;
+  display: table;
 }
 #factor-container{
-  height: 34%
+  height: 34%;
+  margin-top: 1%;
 }
 
 #population-container svg g {
   margin: 0;
 }
 
-#ring-chart svg{
-  margin: auto;
-  padding: 0;
-  display: inline-block;
-}
-
 #ring-chart {
   margin: auto;
   width: 58%;
   height: 58%;
-  display: inline-block;
   padding: 0;
+  vertical-align: middle;
+  top: 50%;
 }
 
 
@@ -74,40 +78,5 @@ html, body{
 #side-right {
   float: right;
 }
-/*
-#side-left svg, #side-right svg, #side-left p, #side-right p {
-  margin: 0;
-  width: 19%;
-  position: relative;
-  border: #ff3300 solid;
-}
 
-#side-left p, #side-right p {
-  font-size: 15pt;
-  height: 10%;
-}
-
-#side-left svg, #side-right svg {
-  height: 19%;
-  width: 19%;
-  margin-top: 1%;
-}
-*/
-/*
-#bar-graph .axis .domain{
-  display: none;
-}
-
-.tooltip{
-  position: absolute;
-  height: 45;
-  padding: 1px;
-  font: 10px sans-serif;
-  color: white;
-  background: #696969;
-  border: 5px;;
-  border-radius: 5px;
-  pointer-events: none;;
-}
-*/
 
