@@ -1,0 +1,113 @@
+html, body{
+  background-color: #ffffbf;
+  font-size: 15px;
+  height: 100%;
+  width: 100%;
+  overflow: hidden;
+  text-align: center;
+  margin: 0;
+}
+
+#main-container{
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: 0;
+  margin-bottom: 0;
+  width: 100%;
+  height: 100%;
+}
+
+#population-container, #factor-container{
+  background-color: white;
+  margin: 2%;
+  text-align: center;
+}
+#population-container{
+  height: 60%;
+}
+#factor-container{
+  height: 34%
+}
+
+#population-container svg g {
+  margin: 0;
+}
+
+#ring-chart svg{
+  margin: auto;
+  padding: 0;
+  display: inline-block;
+}
+
+#ring-chart {
+  margin: auto;
+  width: 58%;
+  height: 58%;
+  display: inline-block;
+  padding: 0;
+}
+
+
+#factor-graph {
+  margin-top: 1%;
+  margin-bottom: 1%;
+  height: 32%;
+  position: relative;
+  x: 0;
+  y: 0;
+}
+
+#side-left, #side-right {
+  display: inline-block;
+  margin-top: auto;
+  margin-bottom: auto;
+  background-color: #ffaa00;
+  height: 50%;
+  width: 10%;
+  margin: 1% 1.5%;
+}
+
+#side-left {
+  float: left;
+}
+
+#side-right {
+  float: right;
+}
+/*
+#side-left svg, #side-right svg, #side-left p, #side-right p {
+  margin: 0;
+  width: 19%;
+  position: relative;
+  border: #ff3300 solid;
+}
+
+#side-left p, #side-right p {
+  font-size: 15pt;
+  height: 10%;
+}
+
+#side-left svg, #side-right svg {
+  height: 19%;
+  width: 19%;
+  margin-top: 1%;
+}
+*/
+/*
+#bar-graph .axis .domain{
+  display: none;
+}
+
+.tooltip{
+  position: absolute;
+  height: 45;
+  padding: 1px;
+  font: 10px sans-serif;
+  color: white;
+  background: #696969;
+  border: 5px;;
+  border-radius: 5px;
+  pointer-events: none;;
+}
+*/
+
