@@ -1,10 +1,16 @@
+#ring-chart, #side-left, #side-right {
+  -webkit-transform: translateY(30%);
+  -ms-transform: translateY(30%);
+  transform: translateY(30%);
+
+}
+
 
 #ring-chart {
   margin: auto;
   width: 58%;
   height: 58%;
   padding: 0;
-  vertical-align: middle;
 }
 
 #side-left, #side-right {
