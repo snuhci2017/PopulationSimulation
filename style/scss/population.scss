@@ -10,10 +10,11 @@
   margin-bottom: auto;
 }
 
-#ring-chart {
-  flex: 3;
-  height: 100%;
+.ring-chart {
   padding: 0;
+  height: 100%;
+  margin: 0;
+  flex: 3;
 }
 
 .side {
@@ -30,6 +31,9 @@
   img, svg, p {
     margin-top: auto;
     margin-bottom: auto;
+    line-height: normal;
+    vertical-align: middle;
+    //display: inline-block;
   }
   img {
     height: 80%;

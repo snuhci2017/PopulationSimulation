@@ -9,7 +9,6 @@ function init_code_hierarchy_plot(data, element_id,count_function,color_function
     var x_margin = 0;
     var y_margin = 0;
     var max_depth=3;
-
     var svg = d3.select("#"+element_id),
         width = svg.style('width'),
         height = svg.style('height');
@@ -17,6 +16,7 @@ function init_code_hierarchy_plot(data, element_id,count_function,color_function
     width = width.substring(0, width.length-2);
     height = height.substring(0, height.length-2);
 
+    console.log(width, height);
     var g = svg.append("g")
        .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
