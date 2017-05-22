@@ -3,6 +3,21 @@
     $(initialize);
 
     function initialize() {
+        d3.csv('factor.csv', (error,data) => {
+            if (error) {
+                alert("csv import error");
+                console.log(error);
+                return;
+            }
+            const factorData = data.map((row) => {
+                let json = {};
+                for (var key in row) {
+                    json[key] = Number(row[key]);
+                }
+                return json;
+            })
+            draw_factor(factorData);
+        });
         d3.csv('population.csv', (error, data) => {
             if (error) {
                 alert("csv import error");
