@@ -2,7 +2,7 @@
 
 function draw_population() {
 
-    function draw_ringchart() {
+    function draw_ringchart(year) {
         function count_function(d) {
             return d[1][0];
         }
@@ -21,13 +21,13 @@ function draw_population() {
         }
         var color = d3.scale.category20c();
         function color_function(d) { return color(d[2]);}
-        init_code_hierarchy_plot("ring-chart", count_function, color_function, label_function, legend_function);
+        init_code_hierarchy_plot(year2data(year), "ring-chart", count_function, color_function, label_function, legend_function);
     }
 
     var imgurl = {
-        'number': 'population.png',
-        'work': 'work.png',
-        'children': 'children2.png'
+        'number': 'assets/population.png',
+        'work': 'assets/work.png',
+        'children': 'assets/children2.png'
     };
 
 
@@ -73,6 +73,6 @@ function draw_population() {
     draw_side('work');
     draw_side('children');
 
-    draw_ringchart();
+    draw_ringchart('2015');
 
 }

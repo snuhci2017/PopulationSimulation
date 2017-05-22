@@ -1,4 +1,5 @@
-function init_code_hierarchy_plot(element_id,count_function,color_function,title_function,legend_function){
+
+function init_code_hierarchy_plot(data, element_id,count_function,color_function,title_function,legend_function){
 
     var plot = document.getElementById(element_id);
 
