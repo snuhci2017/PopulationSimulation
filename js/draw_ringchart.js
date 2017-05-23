@@ -31,16 +31,26 @@ function init_code_hierarchy_plot(data, element_id,count_function,color_function
         for(var i=0; i<l.length; i++) {
             var curr_s = data_dic[level][l[i]];
             // assume curr_s and s is a dictionary having keys of 'num', 'ecorate', 'childrate'
+            function put(k) {
+                for (age in curr_s[k]) {
+                    if (age in s[k]) s[k][age] += curr_s[k][age];
+                    else s[k][age] = curr_s[k][age];
+                }
+            }
             if (i==0) {
                 s['num'] = curr_s['num'];
                 s['ecorate'] = curr_s['ecorate'];
                 s['childrate'] = curr_s['childrate']
+                s['parent'] = {};
+                s['baby'] = {};
             } else {
                 var totnum = s['num'] + curr_s['num']
                 s['ecorate'] = (s['ecorate']*s['num']+curr_s['ecorate']*curr_s['num'])/totnum;
                 s['childrate'] = (s['childrate']*s['num']+curr_s['childrate']*curr_s['num'])/totnum;
                 s['num'] = totnum;
             }
+            put('parent');
+            put('baby');
         }
         return s;
     }
@@ -55,7 +65,9 @@ function init_code_hierarchy_plot(data, element_id,count_function,color_function
     data_dic[0][''] = sum([
           'Pre-economic-activity', 'In-economic-activity', 'Post-economic-activity'
         ], 1);
+
     data_slices = [];
+    var key2num = {};
     var num2degree = (a) => a*2*Math.PI/data_dic[0]['']['num'];
     var max_level = 3
     for (var level=0; level<4; level++) {
@@ -66,6 +78,7 @@ function init_code_hierarchy_plot(data, element_id,count_function,color_function
             degree = num2degree(curr_data['num']);
             data_slices.push([start_degree, start_degree+degree, keys[i], level, curr_data]);
             start_degree += degree;
+            key2num[keys[i]] = curr_data['num']
         }
     }
 
@@ -83,13 +96,28 @@ function init_code_hierarchy_plot(data, element_id,count_function,color_function
                    .data(function(d) { return data_slices; })
                    .enter()
                        .append("g")
+                       .attr("id", function(d, i) {
+                         return element_id+"-slice" + d[2];
+                       })
                        .attr("class", "slice");
 
     slices.append("path")
           .attr("d", arc)
-          .attr("id",function(d,i){return element_id+'-'+d[2];})
+          .attr("id",function(d,i){return element_id+'-path'+d[2];})
+          .attr("class", "path")
           .style("fill", function(d) { return color_function(d);})
+          .style("stroke", function(d) { return color_function(d);})
           .attr("class","form");
+
+    /*
+    slices.append('text')
+      .attr('transform', function(d) {
+        return 'translate(' + arc.centroid(d) + ')';
+      })
+      .attr('dy', '0.5em')
+      .text(function(d) {return d[2];});
+    *
+    */
 
     slices.on("click",animate);
 
@@ -111,6 +139,25 @@ function init_code_hierarchy_plot(data, element_id,count_function,color_function
             set_opacity(0.2);
             this.style.opacity = 1;
 
+            function display_relation(_id, val, blue) {
+                var r = document.getElementById(element_id+'-slice'+_id);
+                r.style.opacity = 1;
+                r = document.getElementById(element_id+'-path'+_id);
+                var color = 255-Math.floor(255*(val/1000)/key2num[_id]);
+                if (blue)
+                    r.style.fill = 'rgb('+color+','+color+',255)';
+                else
+                    r.style.fill = 'rgb(255,'+color+','+color+')';
+
+            }
+
+            for (age in d[4]['parent']) {
+                display_relation(age, d[4]['parent'][age], false);
+            }
+
+            for (age in d[4]['baby']) {
+                display_relation(age, d[4]['baby'][age], true);
+            }
         }
         function mouseout(d) {
             set_opacity(1);
@@ -119,6 +166,10 @@ function init_code_hierarchy_plot(data, element_id,count_function,color_function
             var gs = $(".slice");
             for (var i=0; i<gs.length; i++) {
                 gs[i].style.opacity = op;
+            }
+            gs = $('path');
+            for (var i=0; i<gs.length; i++) {
+                gs[i].style.fill = gs[i].style.stroke;
             }
         }
     }
