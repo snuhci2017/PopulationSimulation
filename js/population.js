@@ -31,7 +31,6 @@ function draw_population() {
         'children': 'assets/children2.png'
     };
 
-
     function adjust_display() {
         var width = window.innerWidth;
         var margin, side_flex;
@@ -73,6 +72,6 @@ function draw_population() {
     draw_side('number');
     draw_side('work');
     draw_side('children');
-    draw_ringchart('main', '2015');
+    draw_ringchart('main', 2010);
 
 }

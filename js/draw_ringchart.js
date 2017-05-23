@@ -16,20 +16,9 @@ function init_code_hierarchy_plot(data, element_id,count_function,color_function
     width = width.substring(0, width.length-2);
     height = height.substring(0, height.length-2);
 
-    console.log(width, height);
     var g = svg.append("g")
        .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
-    var data = {
-        '0-9': {'num':45, 'ecorate': 0.01, 'childrate': 0.00},
-        '10s': {'num':64, 'ecorate': 0.3, 'childrate': 0.01},
-        '20s': {'num':160, 'ecorate': 1.98, 'childrate': 0.4},
-        '30s': {'num':134, 'ecorate': 8.32, 'childrate': 1.2},
-        '40s': {'num':75, 'ecorate': 11.38, 'childrate': 1.6},
-        '50s': {'num':90, 'ecorate': 9.43, 'childrate': 2.3},
-        '60s': {'num':110, 'ecorate': 3.71, 'childrate': 3.6},
-        'Up to 70s': {'num':43, 'ecorate': 0.2, 'childrate': 4.4}
-    };
     var data_dic = [
         {},
         {},
@@ -56,17 +45,16 @@ function init_code_hierarchy_plot(data, element_id,count_function,color_function
         return s;
     }
 
-    data_dic[2]['Underage'] = sum(['0-9', '10s'], 3);
-    data_dic[2]['Adault'] = sum(['20s', '30s'], 3);
-    data_dic[2]['Middle-aged'] = sum(['40s', '50s'], 3);
-    data_dic[2]['Old'] = sum(['60s', 'Up to 70s'], 3);
+    data_dic[2]['Underage'] = sum(['0f', '5f', '10f', '15f'], 3);
+    data_dic[2]['Adault'] = sum(['20f','25f', '30f','35f'], 3);
+    data_dic[2]['Middle-aged'] = sum(['40f', '45f', '50f','55f'], 3);
+    data_dic[2]['Old'] = sum(['60f', '65f', '70ormore'], 3);
     data_dic[1]['Pre-economic-activity'] = sum(['Underage'], 2 )
     data_dic[1]['In-economic-activity'] = sum(['Adault', 'Middle-aged'], 2);
     data_dic[1]['Post-economic-activity'] = sum(['Old'], 2);
     data_dic[0][''] = sum([
           'Pre-economic-activity', 'In-economic-activity', 'Post-economic-activity'
         ], 1);
-
     data_slices = [];
     var num2degree = (a) => a*2*Math.PI/data_dic[0]['']['num'];
     var max_level = 3
