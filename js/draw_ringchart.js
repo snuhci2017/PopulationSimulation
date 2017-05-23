@@ -19,6 +19,7 @@ function init_code_hierarchy_plot(data, element_id,count_function,color_function
     var g = svg.append("g")
        .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
+    console.log(g.style()[0][0]);
     var data_dic = [
         {},
         {},
@@ -129,9 +130,9 @@ function init_code_hierarchy_plot(data, element_id,count_function,color_function
     if (legend_function != undefined) {
         slices.on("mouseover", mouseover)
               .on("mouseout", mouseout);
-        d3.select(".tot.number p").html(legend_function('num', data_slices[0]));
-        d3.select(".tot.work p").html(legend_function('ecorate', data_slices[0]));
-        d3.select(".tot.children p").html(legend_function('childrate', data_slices[0]));
+        d3.select("." + element_id + ".tot.number p").html(legend_function('num', data_slices[0]));
+        d3.select("." + element_id + ".tot.work p").html(legend_function('ecorate', data_slices[0]));
+        d3.select("." + element_id + ".tot.children p").html(legend_function('childrate', data_slices[0]));
         function mouseover(d) {
             d3.select(".curr.number p").html(legend_function('num', d));
             d3.select(".curr.work p").html(legend_function('ecorate', d));

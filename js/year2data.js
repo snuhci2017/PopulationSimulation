@@ -20,7 +20,7 @@ var relationData = {};
 
 var load = false
 
-function load_population() {
+function load_population(draw = false) {
     // this is dummy data
     if (load) {
         draw_population();
@@ -74,7 +74,7 @@ function load_population() {
                 }
             });
             load = true;
-            draw_population();
+            if (draw) draw_population();
         });
 
     });
@@ -82,6 +82,11 @@ function load_population() {
 
 
 function year2data(year){
+
+    if (year === 2020 || year === 2015) {
+        return simulate();
+    }
+
     var raw_data = populationData[year]['total'];
     var _data = {};
 
@@ -135,7 +140,11 @@ function year2data(year){
 }
 
 
+function simulate() {
 
+    return year2data(2010);
+
+}
 
 
 

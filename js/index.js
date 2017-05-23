@@ -4,6 +4,7 @@
     window.onresize = initialize;
 
     function initialize() {
-        load_population();
+        load_population(true);
     }
+
 })();;
