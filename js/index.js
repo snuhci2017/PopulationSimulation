@@ -1,6 +1,7 @@
 (function() {
 
-    $(initialize);
+    window.onload = initialize;
+    window.onresize = initialize;
 
     function initialize() {
         d3.csv('population.csv', (error, data) => {

@@ -23,17 +23,23 @@
           <div id='main-container'>
 
               <div id="population-container">
-                  <div id="side-left">
-                      <p></p>
-                      <svg></svg>
-                      <svg></svg>
+                  <div class="side" id="side-left">
+                      <div class="number tot">
+                      </div>
+                      <div class="work tot">
+                      </div>
+                      <div class="children tot">
+                      </div>
                   </div>
-                  <svg id="ring-chart">
+                  <svg id="main" class="ring-chart">
                   </svg>
-                  <div id="side-right">
-                      <p id="ring-chart-legend"></p>
-                      <svg></svg>
-                      <svg></svg>
+                  <div class="side" id="side-right">
+                      <div class="number curr">
+                      </div>
+                      <div class="work curr">
+                      </div>
+                      <div class="children curr">
+                      </div>
                   </div>
               </div>
 
@@ -47,9 +53,19 @@
           <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
           <script src="https://d3js.org/d3.v3.js"></script>
           <script src="js/lib/d3-transform.min.js"></script>
+
+          <!-- population js codes -->
+          <script src="js/year2data.js"></script>
           <script src="js/draw_ringchart.js"></script>
           <script src="js/population.js"></script>
+          <!-- factor js codes -->
+          <!-- to be placed here -->
+          <!-- main -->
           <script src="js/index.js"></script>
     </body>
 </html>
+
+
+
+
 
