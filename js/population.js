@@ -94,7 +94,7 @@ function draw_ringchart(id, year) {
     }
     var color = d3.scale.category20c();
     function color_function(d) { return color(d[2]);}
-    init_code_hierarchy_plot(year2data(year), id, count_function, color_function, label_function, legend_function);
+    init_code_hierarchy_plot(year2data(year), id, numChart, count_function, color_function, label_function, legend_function);
 }
 
 function _draw_population(_id, _year){
