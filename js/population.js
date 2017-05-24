@@ -1,11 +1,40 @@
 var numChart = 1;
 
+/*
+ * functions
+ *    - draw_population: first draw (currently draw two charts)
+ *    - add_population: one chart -> two charts
+ *      :param year:
+ *    - delete_population: two charts -> one chart
+ *    - draw_ringchart: setting done but only change chart
+ *      :param id:
+ *      :param year:
+ *
+ * */
+
+var firstyear = 1995;
+var secondyear = 2015;
+
 function draw_population() {
     setNumChart(2);
-    _draw_population('second', 2015);
-    _draw_population('first', 2000);
+    _draw_population('first', firstyear);
+    draw_ringchart('second', secondyear);
+    /* these two are just for debug */
+    //delete_population();
+    //add_population(secondyear);
 }
 
+function add_population(year) {
+    setNumChart(2);
+    secondyear = year;
+    _draw_population('first', firstyear);
+    draw_ringchart('second', year);
+}
+
+function delete_population() {
+    setNumChart(1);
+    _draw_population('first', firstyear);
+}
 
 function setNumChart(_numChart) {
 
@@ -14,8 +43,8 @@ function setNumChart(_numChart) {
         _svg.id = 'second';
         _svg.classList.add('ring-chart');
         var svg = document.getElementById('first');
-        console.log(svg);
-        svg.parentNode.insertBefore(_svg, svg.nextSibling);
+        //comment should be removed after fixing g problem
+        //svg.parentNode.insertBefore(_svg, svg.nextSibling);
         var _currs = document.getElementsByClassName('curr');
         var currs = [];
         for (var i=0; i<_currs.length; i++) {
@@ -28,8 +57,9 @@ function setNumChart(_numChart) {
         }
     }
     else if (numChart === 2 && _numChart === 1) {
-        document.getElementById('second').remove();
-        var _ts = document.getElementByClassName('tot second');
+        //comment should be removed after fixing g problem
+        //document.getElementById('second').remove();
+        var _ts = document.getElementsByClassName('tot second');
         var ts = [];
         for (var i=0; i<_ts.length; i++) {
             ts.push(_ts[i]);
@@ -46,7 +76,6 @@ function setNumChart(_numChart) {
 
 
 function draw_ringchart(id, year) {
-    console.log(id, year);
     function count_function(d) {
         return d[1][0];
     }
@@ -56,7 +85,7 @@ function draw_ringchart(id, year) {
     function legend_function(type, d) {
         var name;
         if (type === 'num') name = 'population';
-        else if (type === 'ecorate') name = 'labor participation rate';
+        else if (type === 'ecorate') name = 'aged dependency ratio';
         else if (type === 'childrate') name = 'number of children per a family';
         var value = d[4][type];
         if (type!=='num') value = value.toFixed(2);
@@ -71,7 +100,7 @@ function draw_ringchart(id, year) {
 function _draw_population(_id, _year){
     var imgurl = {
         'number': 'assets/population.png',
-        'work': 'assets/work.png',
+        'work': 'assets/old.png',
         'children': 'assets/children2.png'
     };
 

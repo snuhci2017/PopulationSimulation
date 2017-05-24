@@ -1,11 +1,14 @@
 
 function init_code_hierarchy_plot(data, element_id,count_function,color_function,title_function,legend_function){
 
+
     var plot = document.getElementById(element_id);
 
     while (plot.hasChildNodes()){
         plot.removeChild(plot.firstChild);
     }
+
+
     var x_margin = 0;
     var y_margin = 0;
     var max_depth=3;
@@ -19,7 +22,6 @@ function init_code_hierarchy_plot(data, element_id,count_function,color_function
     var g = svg.append("g")
        .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
 
-    console.log(g.style()[0][0]);
     var data_dic = [
         {},
         {},
@@ -55,6 +57,7 @@ function init_code_hierarchy_plot(data, element_id,count_function,color_function
         }
         return s;
     }
+
 
     data_dic[2]['Underage'] = sum(['0f', '5f', '10f', '15f'], 3);
     data_dic[2]['Adault'] = sum(['20f','25f', '30f','35f'], 3);
@@ -110,15 +113,17 @@ function init_code_hierarchy_plot(data, element_id,count_function,color_function
           .style("stroke", function(d) { return color_function(d);})
           .attr("class","form");
 
-    /*
-    slices.append('text')
-      .attr('transform', function(d) {
-        return 'translate(' + arc.centroid(d) + ')';
-      })
-      .attr('dy', '0.5em')
-      .text(function(d) {return d[2];});
-    *
-    */
+    function append_text(slice, text) {
+        slice.append('text')
+            .attr('transform', function(d) {
+                return 'translate(' + arc.centroid(d) + ')';
+            })
+            .attr('dy', '0.5em')
+            .text(function(d) {return text;});
+    }
+    function remove_text(slice) {
+        slice.select('text').remove();
+    }
 
     slices.on("click",animate);
 
@@ -130,26 +135,41 @@ function init_code_hierarchy_plot(data, element_id,count_function,color_function
     if (legend_function != undefined) {
         slices.on("mouseover", mouseover)
               .on("mouseout", mouseout);
-        d3.select("." + element_id + ".tot.number p").html(legend_function('num', data_slices[0]));
-        d3.select("." + element_id + ".tot.work p").html(legend_function('ecorate', data_slices[0]));
-        d3.select("." + element_id + ".tot.children p").html(legend_function('childrate', data_slices[0]));
-        function mouseover(d) {
+
+
+        var number = d3.select("." + element_id + ".tot.number p");
+        number.html(legend_function('num', data_slices[0]));
+        var work = d3.select("." + element_id + ".tot.work p");
+        work.html(legend_function('ecorate', data_slices[0]));
+        var children = d3.select("." + element_id + ".tot.children p");
+        children.html(legend_function('childrate', data_slices[0]));
+
+        function mouseover(d, i) {
             d3.select(".curr.number p").html(legend_function('num', d));
             d3.select(".curr.work p").html(legend_function('ecorate', d));
             d3.select(".curr.children p").html(legend_function('childrate', d));
             set_opacity(0.2);
-            this.style.opacity = 1;
-
+            var first = d3.select('#first-slice' + d[2]);
+            if (!(first == null)){
+              first.style('opacity', 1);
+              append_text(first, d[2]);
+            }
+            var second = d3.select('#second-slice' + d[2]);
+            if (!(second == null)){
+              second.style('opacity', 1);
+              append_text(second, d[2]);
+            }
             function display_relation(_id, val, blue) {
                 var r = document.getElementById(element_id+'-slice'+_id);
                 r.style.opacity = 1;
                 r = document.getElementById(element_id+'-path'+_id);
                 var color = 255-Math.floor(255*(val/1000)/key2num[_id]);
-                if (blue)
+                if (blue && r.style.fill===r.style.stroke)
                     r.style.fill = 'rgb('+color+','+color+',255)';
+                else if (blue)
+                    r.style.fill = 'rgb(255,'+color+',255)';
                 else
                     r.style.fill = 'rgb(255,'+color+','+color+')';
-
             }
 
             for (age in d[4]['parent']) {
@@ -162,6 +182,10 @@ function init_code_hierarchy_plot(data, element_id,count_function,color_function
         }
         function mouseout(d) {
             set_opacity(1);
+            var first = d3.select('#first-slice' + d[2]);
+            if (!(first == null)) remove_text(first);
+            var second = d3.select('#second-slice' + d[2]);
+            if (!(second == null)) remove_text(second);
         }
         function set_opacity(op) {
             var gs = $(".slice");

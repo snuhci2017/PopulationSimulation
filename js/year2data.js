@@ -106,7 +106,7 @@ function year2data(year){
         if (_year <= 1910) _year = 1915;
         var relation = relationData[_year];
         _data[age] = {'num': Math.floor(raw_data[age]/1000),
-          'ecorate': 12.00,
+          'ecorate': 0,
           'childrate': 0,
           'parent': {},
           'baby': {}
@@ -135,6 +135,17 @@ function year2data(year){
         var female = populationData[year]['female'][age];
         _data[age]['childrate'] = babynum/female;
     }
+
+    var active = 0, nonactive = 0;
+    var old_ages = ['65f', '70ormore'], young_ages = ['0f', '5f', '10f'];
+    for (age in _data) {
+        if (old_ages.indexOf(age) > -1) nonactive += _data[age]['num'];
+        else if (young_ages.indexOf(age) == -1) active += _data[age]['num'];
+    }
+    for (age in _data) {
+        _data[age]['ecorate'] = nonactive * 100 / active;
+    }
+
     return _data;
 
 }
