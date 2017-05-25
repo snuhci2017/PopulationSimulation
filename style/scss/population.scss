@@ -28,7 +28,7 @@
   display: flex;
   flex-direction: column;
   div {
-    background-color: #ffcc33;
+    background-color: #ffffbf;
     margin-top: 5px;
     margin-bottom: 5px;
   }
@@ -46,7 +46,6 @@
   }
   .number, .work, .children {
     flex: 1;
-    border: 2px solid #ffaa11;
     font-size: 12pt;
     span {
       font-size: 24pt;
