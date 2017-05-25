@@ -6,10 +6,41 @@ format of data is [
 */
 
 var factorValue = {
-    factor1: 0, factor2: 10, factor3: 10000,
+    'marriage rate': 0,
+    'divorce rate': 1.0,
+    'private education expenses': 20.0,
 };
 
-var selectedFactor = 'factor1';
+var selectedFactor = 'marriage rate';
+const factorList = ['marriage rate', 'divorce rate', 'private education expenses'];
+
+function loadFactor() {
+    queue()
+        .defer(d3.csv, "data/factor_marriage_divorce_rate.csv")
+        .defer(d3.csv, "data/factor_private_education.csv")
+        .await(function(error, file1, file2) {
+            if (error) {
+                console.error('csv load error :' + error);
+                return;
+            }
+            let json = {};
+            function loadOneFactor(id, file) {
+                json[id] = {
+                    id: id,
+                    values: file.map((d) => {
+                        return {
+                            year : d.year,
+                            value : d[id],
+                        }
+                    })
+                }
+            }
+            loadOneFactor('marriage rate', file1);
+            loadOneFactor('divorce rate', file1);
+            loadOneFactor('private education expenses', file2);
+            draw_factor(json);
+        });
+}
 
 function clickcancel() {
     var event = d3.dispatch('click', 'dblclick');
@@ -62,18 +93,16 @@ function draw_factor(data) {
     const chartWidth = containerWidth - svgMargin.x * 2 - chartMargin.left - chartMargin.right;
     const chartHeight = containerHeight - svgMargin.y * 2 - chartMargin.top - chartMargin.bottom;
     svg.style('width', containerWidth - svgMargin.x * 2).style('height', containerHeight - svgMargin.y * 2);
-    const factorList = ['factor1', 'factor2', 'factor3'];
     const maxYear = 2060;
 
     const xScale = d3.scale.linear()
-                    .domain([
-                        d3.min(data, (d) => (d.year)), maxYear
-                    ])
+                    .domain([1960, maxYear])
                     .range([0, chartWidth])
+
     let yScales = {};
     factorList.forEach((id) => {
         yScales[id] = d3.scale.linear()
-                        .domain([0, d3.max(data, (d) => (d[id]))])
+                        .domain([0, d3.max(data[id].values, (d) => (d.value))])
                         .range([chartHeight, 0])
     });
     const colorScale = d3.scale.category10().domain(factorList);
@@ -105,12 +134,8 @@ function draw_factor(data) {
         lineData = factorList.map((factorName) => {
             return {
                 id: factorName,
-                values: data.map((d) => {
-                    return {
-                        year: d.year,
-                        value: d[factorName],
-                    }
-                }).concat([{year: maxYear, value: factorValue[factorName]}])
+                values: data[factorName].values
+                    .concat([{year: maxYear, value: factorValue[factorName]}])
             }
         });
     }
@@ -177,7 +202,6 @@ function draw_factor(data) {
             .attr('r', 10)
             .attr('fill', (d) => colorScale(d.id))
             .on('mousedown',(d) => {
-                console.log(d);
                 selectedFactor = d.id;
                 updateFocused();
             })
@@ -209,16 +233,15 @@ function draw_factor(data) {
 
     let doubleClick = clickcancel()
         .on('dblclick', (d) => {
-            console.log(d);
             let value = xScale.invert(d.x - 50); //FIXME: not appropriate
             value = Math.max(value, timeRange.min);
             value = Math.min(value, timeRange.max);
             value = Math.round(value / 5) * 5;
             time2 = value;
-
-            console.log('dblclick : '+time2);
             g.select('.timeline2').attr('transform', d3.transform().translate(xScale(time2),0))
                 .attr('opacity', 1)
+            let timeChangeEvent = new CustomEvent('time_changed', {'detail' : {year: value, id: 'right'}});
+            document.dispatchEvent(timeChangeEvent);
         })
 
     g.append('rect')
