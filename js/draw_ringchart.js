@@ -1,5 +1,5 @@
 var slices_dic = {'first': null, 'second': null};
-var clicked = false;
+var clicked = null;
 
 function init_code_hierarchy_plot(data, element_id, numChart, count_function,color_function,title_function,legend_function){
 
@@ -127,8 +127,6 @@ function init_code_hierarchy_plot(data, element_id, numChart, count_function,col
         slice.select('text').remove();
     }
 
-    //slices.on("click",animate);
-
     slices.append("svg:title")
               .text(title_function);
 
@@ -142,29 +140,40 @@ function init_code_hierarchy_plot(data, element_id, numChart, count_function,col
         other_slices = slices_dic[other_id];
     }
 
+    slices
+        .on("mouseover", function(d, i) {
+            var slice = d3.select(this);
+            slice.style('cursor', 'pointer');
+            append_text(slice, d[2]);
+        })
+        .on("mouseout", function(d, i) {
+            var slice = d3.select(this);
+            slice.style('cursor', 'default');
+            if (i!==clicked) remove_text(slice);
+        });
     slices.on("click", function(d, i) {
-        clicked = !clicked;
-        if (clicked) {
+        if (clicked === null || clicked !== i) {
             display_legend(d, i);
             display_relation(d, i, element_id);
-            console.log(other_slices);
             if (other_slices!==null) {
-                console.log('!');
                 display_relation(other_slices[1][i], i, other_id);
             }
+            clicked = i;
         } else {
             mouseout(d, i);
+            clicked = null;
         }
     });
     if (other_slices!==null) {
         other_slices[0].on("click", function(d, i) {
-            clicked = !clicked;
-            if (clicked) {
+            if (clicked === null || clicked !== i) {
                 display_legend(d, i);
                 display_relation(d, i, other_id);
                 display_relation(data_slices[i], i, element_id);
+                clicked = i;
             } else {
-                mouseout(d, i)
+                mouseout(d, i);
+                clicked = null;
             }
         });
     }
@@ -178,6 +187,7 @@ function init_code_hierarchy_plot(data, element_id, numChart, count_function,col
         d3.select(".curr.work p").html(legend_function('ecorate', d));
         d3.select(".curr.children p").html(legend_function('childrate', d));
         set_opacity(0.2);
+        remove_all_text();
         var first = d3.select('#first-slice' + d[2]);
         if (!(first == null)){
             first.style('opacity', 1);
@@ -215,11 +225,13 @@ function init_code_hierarchy_plot(data, element_id, numChart, count_function,col
 
     function mouseout(d) {
         set_opacity(1);
-        var first = d3.select('#first-slice' + d[2]);
-        if (!(first == null)) remove_text(first);
-        var second = d3.select('#second-slice' + d[2]);
-        if (!(second == null)) remove_text(second);
+        remove_all_text();
     }
+
+    function remove_all_text(){
+        d3.selectAll('.slice').select('text').remove();
+    }
+
 
     function set_opacity(op) {
         var gs = $(".slice");

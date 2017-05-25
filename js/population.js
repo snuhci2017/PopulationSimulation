@@ -1,6 +1,8 @@
 var numChart = 1;
 
-/*
+/* event
+ *   - time_changed: {'id':string, 'year':number}
+ *
  * functions
  *    - draw_population: first draw (currently draw two charts)
  *    - add_population: one chart -> two charts
@@ -12,29 +14,49 @@ var numChart = 1;
  *
  * */
 
-var firstyear = 1995;
-var secondyear = 2015;
+var firstyear = 1990;
+var secondyear = 2010;
 
 function draw_population() {
     setNumChart(2);
     _draw_population('first', firstyear);
     draw_ringchart('second', secondyear);
-    /* these two are just for debug */
-    //delete_population();
-    //add_population(secondyear);
 }
 
-function add_population(year) {
-    setNumChart(2);
-    secondyear = year;
-    _draw_population('first', firstyear);
-    draw_ringchart('second', year);
-}
-
-function delete_population() {
-    setNumChart(1);
-    _draw_population('first', firstyear);
-}
+document.addEventListener("time_changed", function(e){
+    var _year = e.year, _id = e.id;
+    if (_id === 'center') {
+        if (numChart === 1) {
+            draw_ringchart('first', _year);
+        } else {
+            setNumChart(1);
+            _draw_population('first', _year);
+        }
+        firstyear = _year;
+    } else {
+        if (numChart === 2) {
+            if (_id === 'left') {
+                draw_ringchart('first', _year);
+                firstyear = _year;
+            } else {
+                draw_ringchart('second', _year);
+                secondyear = _year;
+            }
+        } else {
+            setNumChart(2);
+            if (_id === 'left') {
+                _draw_population('first', _year);
+                draw_ringchart('second', firstyear);
+                secondyear = firstyear;
+                firstyear = _year;
+            } else {
+                _draw_population('first', firstyear);
+                draw_ringchart('second', _year);
+                secondyear = _year;
+            }
+        }
+    }
+});
 
 function setNumChart(_numChart) {
 
@@ -98,6 +120,7 @@ function draw_ringchart(id, year) {
 }
 
 function _draw_population(_id, _year){
+
     var imgurl = {
         'number': 'assets/population.png',
         'work': 'assets/old.png',
