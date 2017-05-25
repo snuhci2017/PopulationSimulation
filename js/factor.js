@@ -203,9 +203,9 @@ function draw_factor(data) {
 
     // MARK: time line
     // TODO: time into data and bind it
-    let time1 = 1950;
+    let time1 = 1970;
     let time2 = 1920;
-    const timeRange = {max: maxYear, min: 1930};
+    const timeRange = {max: maxYear, min: 1970};
 
     let doubleClick = clickcancel()
         .on('dblclick', (d) => {

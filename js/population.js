@@ -14,7 +14,7 @@ var numChart = 1;
  *
  * */
 
-var firstyear = 1990;
+var firstyear = 1970;
 var secondyear = 2010;
 
 function draw_population() {
@@ -24,8 +24,8 @@ function draw_population() {
 }
 
 document.addEventListener("time_changed", function(e){
-    var _year = e.year, _id = e.id;
-    console.log(e);
+    var _year = e.detail.year, _id = e.detail.id;
+    console.log(_year, _id);
     if (_id === 'center') {
         if (numChart === 1) {
             draw_ringchart('first', _year);
@@ -62,7 +62,7 @@ document.addEventListener("time_changed", function(e){
 function setNumChart(_numChart) {
 
     if (numChart === 1 && _numChart === 2) {
-        $('.svg.second').show();
+        $('svg#second').show();
         /*
         var _svg = document.createElement('svg');
         _svg.id = 'second';
@@ -83,7 +83,7 @@ function setNumChart(_numChart) {
         }
     }
     else if (numChart === 2 && _numChart === 1) {
-        $('.svg.second').hide();
+        $('svg#second').hide();
         //comment should be removed after fixing g problem
         //document.getElementById('second').remove();
         var _ts = document.getElementsByClassName('tot second');

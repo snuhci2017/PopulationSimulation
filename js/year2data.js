@@ -83,9 +83,10 @@ function load_population(draw = false) {
 
 function year2data(year){
 
-    if (year === 2020 || year === 2015) {
+    if (year > 2010) {
         return simulate();
     }
+
 
     var raw_data = populationData[year]['total'];
     var _data = {};
