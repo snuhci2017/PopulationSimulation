@@ -18,13 +18,14 @@ var firstyear = 1990;
 var secondyear = 2010;
 
 function draw_population() {
-    setNumChart(2);
     _draw_population('first', firstyear);
-    draw_ringchart('second', secondyear);
+    //draw_ringchart('second', secondyear);
+
 }
 
 document.addEventListener("time_changed", function(e){
     var _year = e.year, _id = e.id;
+    console.log(e);
     if (_id === 'center') {
         if (numChart === 1) {
             draw_ringchart('first', _year);
@@ -61,12 +62,15 @@ document.addEventListener("time_changed", function(e){
 function setNumChart(_numChart) {
 
     if (numChart === 1 && _numChart === 2) {
+        $('.svg.second').show();
+        /*
         var _svg = document.createElement('svg');
         _svg.id = 'second';
         _svg.classList.add('ring-chart');
         var svg = document.getElementById('first');
         //comment should be removed after fixing g problem
-        //svg.parentNode.insertBefore(_svg, svg.nextSibling);
+        svg.parentNode.insertBefore(_svg, svg.nextSibling);
+        */
         var _currs = document.getElementsByClassName('curr');
         var currs = [];
         for (var i=0; i<_currs.length; i++) {
@@ -79,6 +83,7 @@ function setNumChart(_numChart) {
         }
     }
     else if (numChart === 2 && _numChart === 1) {
+        $('.svg.second').hide();
         //comment should be removed after fixing g problem
         //document.getElementById('second').remove();
         var _ts = document.getElementsByClassName('tot second');

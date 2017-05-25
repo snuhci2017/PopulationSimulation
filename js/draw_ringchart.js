@@ -234,11 +234,11 @@ function init_code_hierarchy_plot(data, element_id, numChart, count_function,col
 
 
     function set_opacity(op) {
-        var gs = $(".slice");
+        var gs = $("#population-container .slice");
         for (var i=0; i<gs.length; i++) {
             gs[i].style.opacity = op;
         }
-        gs = $('path');
+        gs = $('#population-container path');
         for (var i=0; i<gs.length; i++) {
             gs[i].style.fill = gs[i].style.stroke;
         }
