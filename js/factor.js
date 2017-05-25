@@ -121,7 +121,7 @@ function draw_factor(data) {
         .enter().append('g').attr('class', 'factor-line');
 
     let factorPath = factorLine.append('path')
-            .attr('class', 'line')
+            .attr('class', 'factor-path')
             .attr('d', (d) => lines[d.id](d.values))
             .style('stroke', (d) => colorScale(d.id));
 
@@ -241,7 +241,7 @@ function draw_factor(data) {
         let id = 'left';
         if (time2 === 1920)
             id = 'center';
-        let timeChangeEvent = new CustomEvent('time_changed', {year: value, id: id});
+        let timeChangeEvent = new CustomEvent('time_changed', { 'detail' : {year: value, id: id}});
         document.dispatchEvent(timeChangeEvent);
     }
 
@@ -258,7 +258,7 @@ function draw_factor(data) {
         d3.select(this).attr('transform',
                                 d3.transform().translate(xScale(value),0)
                             );
-        let timeChangeEvent = new CustomEvent('time_changed', {year: value, id: 'right'});
+        let timeChangeEvent = new CustomEvent('time_changed', {'detail' : {year: value, id: 'right'}});
         document.dispatchEvent(timeChangeEvent);
     }
 
