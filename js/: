@@ -1,5 +1,5 @@
 var slices_dic = {'first': null, 'second': null};
-var clicked = null;
+var clicked = false;
 
 function init_code_hierarchy_plot(data, element_id, numChart, count_function,color_function,title_function,legend_function){
 
@@ -127,6 +127,8 @@ function init_code_hierarchy_plot(data, element_id, numChart, count_function,col
         slice.select('text').remove();
     }
 
+    //slices.on("click",animate);
+
     slices.append("svg:title")
               .text(title_function);
 
@@ -140,43 +142,50 @@ function init_code_hierarchy_plot(data, element_id, numChart, count_function,col
         other_slices = slices_dic[other_id];
     }
 
-    slices
-        .on("mouseover", function(d, i) {
-            var slice = d3.select(this);
-            slice.style('cursor', 'pointer');
-            append_text(slice, d[2]);
+    /*
+    slices.on("mouseover", function(d,i) {
+            display_legend(d, i);
+            display_relation(d, i);
+            if (!(other_slices==null)){
+                console.log('!');
+                display_relation(other_slices[1][i], i);
+            }
         })
-        .on("mouseout", function(d, i) {
-            var slice = d3.select(this);
-            slice.style('cursor', 'default');
-            if (i!==clicked) remove_text(slice);
+        .on("mouseout", mouseout);
+
+    if (!(other_slices==null)) {
+        console.log('!');
+        other_slices[0].on("mouseover", function(d, i) {
+            display_legend(d, i);
+            display_relation(d, i);
+            display_relation(slices[1][i], i);
         });
+    }*/
+
     slices.on("click", function(d, i) {
-        if (clicked === null || clicked !== i) {
+        clicked = !clicked;
+        if (clicked) {
             display_legend(d, i);
             display_relation(d, i, element_id);
-            if (other_slices!==null) {
+            console.log(other_slices);
+            if (!(other_slices==null)) {
+                console.log('!');
                 display_relation(other_slices[1][i], i, other_id);
             }
-            clicked = i;
         } else {
             mouseout(d, i);
-            clicked = null;
         }
     });
-    if (other_slices!==null) {
-        other_slices[0].on("click", function(d, i) {
-            if (clicked === null || clicked !== i) {
-                display_legend(d, i);
-                display_relation(d, i, other_id);
-                display_relation(data_slices[i], i, element_id);
-                clicked = i;
-            } else {
-                mouseout(d, i);
-                clicked = null;
-            }
-        });
-    }
+    other_slices[0].on("click", function(d, i) {
+        clicked = !clicked;
+        if (clicked) {
+            display_legend(d, i);
+            display_relation(d, i, other_id);
+            display_relation(slices[i], i, element_id);
+        } else {
+            mouseout(d, i)
+        }
+    });
 
     d3.select("." + element_id + ".tot.number p").html(legend_function('num', data_slices[0]));
     d3.select("." + element_id + ".tot.work p").html(legend_function('ecorate', data_slices[0]));
@@ -187,7 +196,6 @@ function init_code_hierarchy_plot(data, element_id, numChart, count_function,col
         d3.select(".curr.work p").html(legend_function('ecorate', d));
         d3.select(".curr.children p").html(legend_function('childrate', d));
         set_opacity(0.2);
-        remove_all_text();
         var first = d3.select('#first-slice' + d[2]);
         if (!(first == null)){
             first.style('opacity', 1);
@@ -225,13 +233,11 @@ function init_code_hierarchy_plot(data, element_id, numChart, count_function,col
 
     function mouseout(d) {
         set_opacity(1);
-        remove_all_text();
+        var first = d3.select('#first-slice' + d[2]);
+        if (!(first == null)) remove_text(first);
+        var second = d3.select('#second-slice' + d[2]);
+        if (!(second == null)) remove_text(second);
     }
-
-    function remove_all_text(){
-        d3.selectAll('.slice').select('text').remove();
-    }
-
 
     function set_opacity(op) {
         var gs = $(".slice");
