@@ -1,3 +1,18 @@
+var startyear = 1960,
+    endyear = 2040,
+    curryear = 2015;
+
+var title_fontsize = '24pt',
+    name_fontsize = '18pt',
+    valuetoken_fontsize = '8pt';
+
+
+
+/*
+ * colors
+ *
+ * */
+
 var colors = [
     '#ff5722',
     '#ff9800',

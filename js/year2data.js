@@ -83,7 +83,7 @@ function load_population(draw = false) {
 
 function year2data(year){
 
-    if (year > 2010) {
+    if (year > curryear) {
         return simulate();
     }
 

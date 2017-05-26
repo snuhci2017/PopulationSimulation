@@ -7,14 +7,14 @@ function draw_ringchart(id, year) {
     function label_function(d) {
         return d[4]['num'];
     }
-    function legend_function(type, d) {
+    function legend_function(type, d, title=false) {
         var name;
         if (type === 'num') name = 'population';
         else if (type === 'ecorate') name = 'aged dependency ratio';
         else if (type === 'childrate') name = 'number of children per a family';
-        var value = d[4][type];
+        var value = title? d[type] : d[4][type];
         if (type!=='num') value = value.toFixed(2);
-        var description = description = (d[2]=='')? 'Total ' + name : name + ' of ' + d[2];
+        var description = description = title? 'Total ' + name : name + ' of ' + name2range(d[2]);
         return description + " is <br /><span>" + value + "</span>";
     }
     function color_function(d) {
@@ -23,7 +23,7 @@ function draw_ringchart(id, year) {
     init_code_hierarchy_plot(year2data(year), year, id, numChart, color_function, label_function, legend_function);
 }
 
-function _draw_population(_id, _year){
+function set_display(){
 
     var imgurl = {
         'number': 'assets/population.png',
@@ -62,15 +62,14 @@ function _draw_population(_id, _year){
     }
 
     function draw_side(keyword) {
-
-        $divs = $('.' + keyword);
-        $divs.html('');
-        for (var i=0; i<$divs.length; i++) {
+        divs = document.getElementsByClassName(keyword);
+        for (var i=0; i<divs.length; i++) {
             var img = document.createElement('img');
             img.src = imgurl[keyword];
             img.alt = "number-icon";
-            $divs[i].append(img);
-            $divs[i].append(document.createElement('p'));
+            divs[i].innerHTML = '';
+            divs[i].append(img);
+            divs[i].append(document.createElement('p'));
         }
     }
 
@@ -78,5 +77,4 @@ function _draw_population(_id, _year){
     draw_side('number');
     draw_side('work');
     draw_side('children');
-    draw_ringchart(_id, _year);
 }

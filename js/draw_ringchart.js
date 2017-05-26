@@ -22,7 +22,7 @@ function init_code_hierarchy_plot(data, year, element_id, numChart, color_functi
     height = height.substring(0, height.length-2);
 
     var g = svg.append("g")
-       .attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+       .attr("transform", set_translate(width/2, height/2));
 
     var data_dic = [
         {},
@@ -81,6 +81,10 @@ function init_code_hierarchy_plot(data, year, element_id, numChart, color_functi
             curr_data = data_dic[level][keys[i]];
             degree = num2degree(curr_data['num']);
             data_slices.push([start_degree, start_degree+degree, keys[i], level, curr_data]);
+            // add slice for text
+            if (level === 3) {
+                data_slices.push([start_degree-0.01, start_degree+0.01, '', level+1, i*5]);
+            }
             start_degree += degree;
             key2num[keys[i]] = curr_data['num']
         }
@@ -90,19 +94,26 @@ function init_code_hierarchy_plot(data, year, element_id, numChart, color_functi
     var next_ref = ref;
     var last_refs = [];
     var innerpadding = 1;
-    var thickness = width/2.0/(max_level+2+innerpadding)*1.1;
+    var thickness = width/2.0/(max_level+3+innerpadding)*1.1;
 
     var arc = d3.svg.arc()
-                .startAngle(function(d) { if(d[3]==0){return d[0];}return d[0]+0.01; })
-                .endAngle(function(d) { if(d[3]==0){return d[1];}return d[1]-0.01; })
+                .startAngle(function(d) {
+                    //if(d[3]==0){return d[0];}
+                    return d[0]+0.01;
+                })
+                .endAngle(function(d) {
+                    //if(d[3]==0){return d[1];}
+                    return d[1]-0.01;
+                })
                 .innerRadius(function(d) {
-                    var depth = (d[3]==0)? 0 : d[3] + innerpadding;
+                    var depth = (d[3]===0)? 0 : d[3] + innerpadding;
                     return 1.1*depth*thickness;
                 })
                 .outerRadius(function(d) {
                     var depth = d[3] + innerpadding;
                     return (1.1*depth+1)*thickness;
                 });
+
     var slices = g.selectAll(".form")
                    .data(function(d) { return data_slices; })
                    .enter()
@@ -120,30 +131,22 @@ function init_code_hierarchy_plot(data, year, element_id, numChart, color_functi
           .style("stroke-width", 0.1*thickness)
           .attr("class","path form");
 
-    function append_text(slice, text) {
-        slice.append('text')
-            .attr('transform', function(d) {
-                return 'translate(' + arc.centroid(d) + ')';
-            })
-            .attr('dy', '0.5em')
-            .text(function(d) {return text;});
-    }
-
-    function remove_text(slice) {
-        slice.select('text').remove();
-    }
+    slices.append('text')
+          .attr('transform', function(d, i) {
+              var centroid = arc.centroid(d);
+              return set_translate(0.95*centroid[0], 0.95*centroid[1]);
+          })
+          .attr('dy', '0.5em')
+          .text(function(d) {
+              return (d[3]===4)? d[4]:'';
+          })
+          .style('font-size', valuetoken_fontsize)
+          .style('text-anchor', 'middle');
 
     slices.append("svg:title")
               .text(title_function);
 
-    var title = g.append('text')
-        .text(year)
-        .style('font-size', '24pt');
-    var title_width = title.style('width'),
-    title_width = title_width.substring(0, title_width.length-2);
-    title.attr('transform', 'translate(-' + (title_width/2) + ',0)');
-
-    slices_dic[element_id] = [slices, data_slices];
+    set_title(slices, year);
 
     var other_slices = null;
     var other_id;
@@ -155,19 +158,26 @@ function init_code_hierarchy_plot(data, year, element_id, numChart, color_functi
 
     slices
         .on("mouseover", function(d, i) {
+            if (d[3]===4) return;
+            set_title(slices, name2range(d[2]));
             var slice = d3.select(this);
             slice.style('cursor', 'pointer');
             d3.select('#'+element_id+'-path'+d[2]).style('stroke', function(d, i) {return color_function(d);});
             if (clicked === null || clicked === i) display_legend(d, true);
         })
         .on("mouseout", function(d, i) {
+            if (d[3]===4) return;
+            set_title(slices, year);
             var slice = d3.select(this);
             slice.style('cursor', 'default');
             d3.select('#'+element_id+'-path'+d[2]).style('stroke', '#ffffff');
             if (clicked === null) display_legend(d, false);
         });
+
     slices.on("click", function(d, i) {
+        if (d[3]===4) return;
         if (clicked === null || clicked !== i) {
+            if (clicked !== null) mouseout(data_slices[clicked], clicked);
             display_legend(d, true);
             display_arc(d, i);
             display_relation(d, i, element_id);
@@ -183,6 +193,7 @@ function init_code_hierarchy_plot(data, year, element_id, numChart, color_functi
     if (other_slices!==null) {
         other_slices[0].on("click", function(d, i) {
             if (clicked === null || clicked !== i) {
+                if (clicked !== null) mouseout(other_slices[1][clicked], clicked);
                 display_arc(d, i);
                 display_relation(d, i, other_id);
                 display_relation(data_slices[i], i, element_id);
@@ -194,27 +205,25 @@ function init_code_hierarchy_plot(data, year, element_id, numChart, color_functi
         });
     }
 
-    d3.select("." + element_id + ".tot.number p").html(legend_function('num', data_slices[0]));
-    d3.select("." + element_id + ".tot.work p").html(legend_function('ecorate', data_slices[0]));
-    d3.select("." + element_id + ".tot.children p").html(legend_function('childrate', data_slices[0]));
+    d3.select("." + element_id + ".tot.number p").html(legend_function('num', data_dic[0][''], true));
+    d3.select("." + element_id + ".tot.work p").html(legend_function('ecorate', data_dic[0][''], true));
+    d3.select("." + element_id + ".tot.children p").html(legend_function('childrate', data_dic[0][''], true));
 
     function display_legend(d, display) {
         d3.select(".curr.number p").html((display)? legend_function('num', d) : '');
         d3.select(".curr.work p").html((display)? legend_function('ecorate', d) : '');
         d3.select(".curr.children p").html((display)? legend_function('childrate', d) : '');
     }
+
     function display_arc(d, i){
         set_opacity(0.1);
-        //remove_all_text();
         var first = d3.select('#first-slice' + d[2]);
         if (!(first == null)){
             first.style('opacity', 1);
-            //append_text(first, d[2]);
         }
         var second = d3.select('#second-slice' + d[2]);
         if (!(second == null)){
             second.style('opacity', 1);
-            //append_text(second, d[2]);
         }
     }
 

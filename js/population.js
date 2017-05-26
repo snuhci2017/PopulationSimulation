@@ -14,13 +14,13 @@ var numChart = 1;
  *
  * */
 
-var firstyear = 1970;
-var secondyear = 2010;
+var firstyear = startyear;
+var secondyear = curryear;
 
 function draw_population() {
-    _draw_population('first', firstyear);
-    //draw_ringchart('second', secondyear);
-
+    set_display();
+    draw_ringchart('first', firstyear);
+    if (numChart == 2) draw_ringchart('second', secondyear);
 }
 
 document.addEventListener("time_changed", function(e){
@@ -30,7 +30,8 @@ document.addEventListener("time_changed", function(e){
             draw_ringchart('first', _year);
         } else {
             setNumChart(1);
-            _draw_population('first', _year);
+            set_display();
+            draw_ringchart('first', _year);
         }
         firstyear = _year;
     } else {
@@ -45,12 +46,14 @@ document.addEventListener("time_changed", function(e){
         } else {
             setNumChart(2);
             if (_id === 'left') {
-                _draw_population('first', _year);
+                set_display();
+                draw_ringchart('first', _year);
                 draw_ringchart('second', firstyear);
                 secondyear = firstyear;
                 firstyear = _year;
             } else {
-                _draw_population('first', firstyear);
+                set_display();
+                draw_ringchart('first', firstyear);
                 draw_ringchart('second', _year);
                 secondyear = _year;
             }
