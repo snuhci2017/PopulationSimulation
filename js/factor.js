@@ -6,9 +6,9 @@ format of data is [
 */
 
 var factorValue = {
-    'marriage rate': 0,
-    'divorce rate': 1.0,
-    'private education expenses': 20.0,
+    'marriage rate': 3.0,
+    'divorce rate': 2.0,
+    'private education expenses': 28.0,
 };
 
 var selectedFactor = 'marriage rate';
@@ -30,8 +30,8 @@ function loadFactor() {
                     id: id,
                     values: file.map((d) => {
                         return {
-                            year : d.year,
-                            value : d[id],
+                            year : Number(d.year),
+                            value : Number(d[id]),
                         }
                     })
                 }
@@ -91,7 +91,7 @@ function draw_factor(data) {
         x: 0, y: 0
     }
     const chartMargin = {
-        left: 50, right: 50, top: 20, bottom: 20
+        left: 50, right: 100, top: 20, bottom: 20
     }
     const containerWidth = $('#factor-container').width();
     const containerHeight = $('#factor-container').height();
@@ -99,6 +99,7 @@ function draw_factor(data) {
     const chartHeight = containerHeight - svgMargin.y * 2 - chartMargin.top - chartMargin.bottom;
     svg.style('width', containerWidth - svgMargin.x * 2).style('height', containerHeight - svgMargin.y * 2);
     const maxYear = 2060;
+    const timeRange = {max: maxYear, min: 1970};
 
     const xScale = d3.scale.linear()
                     .domain([1960, maxYear])
@@ -107,9 +108,10 @@ function draw_factor(data) {
     let yScales = {};
     factorList.forEach((id) => {
         yScales[id] = d3.scale.linear()
-                        .domain([0, d3.max(data[id].values, (d) => (d.value))])
+                        .domain([0.0, d3.max(data[id].values, (d) => (d.value)) * 1.2])
                         .range([chartHeight, 0])
     });
+
     const colorScale = d3.scale.category10().domain(factorList);
 
     let lines = {};
@@ -155,84 +157,7 @@ function draw_factor(data) {
             .attr('d', (d) => lines[d.id](d.values))
             .style('stroke', (d) => colorScale(d.id));
 
-    let dragFactor = d3.behavior.drag()
-        .on('drag', factorDragged);
-
-    factorLine.append('text').call(setFactorLabel);
-
-    function setFactorLabel(selection) {
-        selection
-            .attr('class', 'factor-label')
-            .datum((d) => {
-                return {id: d.id, value: d.values[d.values.length - 1]}
-            })
-            .attr('transform', d3.transform()
-                .translate((d) => [xScale(d.value.year) + 15, yScales[d.id](d.value.value)])
-            )
-            .text((d) => d.id);
-    }
-
-    factorLine.append('circle')
-            .on('mousedown',(d) => {
-                selectedFactor = d.id;
-                updateFocused();
-            })
-            .call(setFactorHandle)
-            .call(dragFactor);
-
-    function setFactorHandle(selection) {
-        selection
-            .datum((d) => {
-                return {id: d.id, value: d.values[d.values.length - 1]}
-            })
-            .attr('class', 'factor-handle')
-            .attr('transform', d3.transform()
-                .translate((d) => [xScale(d.value.year), yScales[d.id](d.value.value)])
-            )
-            .attr('r', 10)
-            .attr('z-index', 1)
-            .attr('fill', (d) => colorScale(d.id))
-    }
-
-    function factorDragged(d) {
-        let value = yScales[d.id].invert(d3.event.y);
-        const range = yScales[d.id].domain();
-        value = Math.max(value, range[0]);
-        value = Math.min(value, range[1]);
-        factorValue[d.id] = value;
-        updateLineData();
-        const tmpLineChart = lineChart.selectAll('.factor-line').data(lineData);
-        tmpLineChart.select('.factor-path')
-            .attr('d', (d) => lines[d.id](d.values));
-
-        tmpLineChart.select('.factor-handle')
-            .call(setFactorHandle);
-
-        tmpLineChart.select('.factor-label')
-            .call(setFactorLabel);
-    }
-
-    function updateFocused() {
-        if (selectedFactor === null) {
-            g.select('.axis-y').transition().attr('opacity', 0);
-        } else {
-            g.select('.axis-y').call(d3.svg.axis().scale(yScales[selectedFactor]).orient('left')).transition().attr('opacity',1);
-        }
-        const tmpLineChart = lineChart.selectAll('.factor-line').data(lineData).transition()
-            .attr('opacity', (d) => {
-                if (d.id === selectedFactor) {
-                    return 1;
-                } else {
-                    return 0.2;
-                }
-            });
-    }
-
-    updateFocused();
-
-    // MARK: time line
-    const timeRange = {max: maxYear, min: 1970};
-
+    // MARK: chart background
     let chartDClick = doubleClick()
         .on('dblclick', (d) => {
             if (selectedTime.length !== 1) return;
@@ -257,6 +182,90 @@ function draw_factor(data) {
     g.append('rect')
         .attr('width', chartWidth).attr('height', chartHeight).attr('opacity', 0)
         .call(chartDClick);
+
+    // MARK: handle container
+    let handleContainer = g.append('g');
+
+    handleContainer.selectAll('.factor-label').data(factorList)
+        .enter()
+        .append('text').call(setFactorLabel);
+
+    let dragFactor = d3.behavior.drag()
+        .on('drag', factorDragged);
+
+    function setFactorLabel(selection) {
+        selection
+            .attr('class', 'factor-label')
+            .attr('transform', d3.transform()
+                .translate((d) => [xScale(maxYear) + 15, yScales[d](factorValue[d])])
+            )
+            .text((d) => d);
+    }
+
+    handleContainer.selectAll('.factor-handle').data(factorList)
+        .enter()
+        .append('circle')
+        .on('mousedown',(d) => {
+            selectedFactor = d;
+            updateFocused();
+        })
+        .call(setFactorHandle)
+        .call(dragFactor);
+
+    function setFactorHandle(selection) {
+        selection
+            .attr('class', 'factor-handle')
+            .attr('transform', d3.transform()
+                .translate((d) => [xScale(maxYear), yScales[d](factorValue[d])])
+            )
+            .attr('r', 10)
+            .attr('z-index', 1)
+            .attr('fill', (d) => colorScale(d))
+    }
+
+    function factorDragged(d) {
+        let value = yScales[d].invert(d3.event.y);
+        const range = yScales[d].domain();
+        value = Math.max(value, range[0]);
+        value = Math.min(value, range[1]);
+        factorValue[d] = value;
+        updateLineData();
+        const tmpLineChart = lineChart.selectAll('.factor-line').data(lineData);
+        tmpLineChart.select('.factor-path')
+            .attr('d', (d) => lines[d.id](d.values));
+
+        handleContainer.selectAll('.factor-handle').data(factorList)
+            .call(setFactorHandle);
+
+        handleContainer.selectAll('.factor-label').data(factorList)
+            .call(setFactorLabel);
+    }
+
+    function updateFocused() {
+        if (selectedFactor === null) {
+            g.select('.axis-y').attr('opacity', 0);
+        } else {
+            g.select('.axis-y').call(d3.svg.axis().scale(yScales[selectedFactor]).orient('left')).attr('opacity',1);
+        }
+        const tmpLineChart = lineChart.selectAll('.factor-line').data(lineData).transition()
+            .attr('opacity', (d) => {
+                if (d.id === selectedFactor) {
+                    return 1;
+                } else {
+                    return 0.2;
+                }
+            });
+        handleContainer.selectAll('.factor-handle').data(factorList).transition()
+            .attr('opacity', (d) => {
+                if (d === selectedFactor) {
+                    return 1;
+                } else {
+                    return 0.2;
+                }
+            });
+    }
+
+    updateFocused();
 
     let dragTimeline = d3.behavior.drag()
         .origin((d) => ({x: xScale(d.time), y: 0}))
