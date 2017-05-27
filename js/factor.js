@@ -39,6 +39,9 @@ function loadFactor() {
             loadOneFactor('divorce rate', file1);
             loadOneFactor('private education expenses', file2);
             draw_factor(json);
+            window.addEventListener('resize', () => {
+                draw_factor(json);
+            });
         });
 }
 
@@ -81,6 +84,7 @@ function clickcancel() {
 
 function draw_factor(data) {
     const svg = d3.select('svg#factor-graph');
+    svg.html('');
     const charts = svg.append('g');
     const svgMargin = {
         x: 0, y: 0
@@ -151,37 +155,12 @@ function draw_factor(data) {
             .style('stroke', (d) => colorScale(d.id));
 
     let dragFactor = d3.behavior.drag()
-        //.origin((d) => ({x: xScale(maxYear), y: yScales[d.id](d.value)}))
         .on('drag', factorDragged);
 
-    function factorDragged(d) {
-        let value = yScales[d.id].invert(d3.event.y);
-        const range = yScales[d.id].domain();
-        value = Math.max(value, range[0]);
-        value = Math.min(value, range[1]);
-        factorValue[d.id] = value;
-        updateLineData();
-        // TODO: refactoring for enter update model
-        const tmpLineChart = lineChart.selectAll('.factor-line').data(lineData);
-        tmpLineChart.select('.line')
-            .attr('d', (d) => lines[d.id](d.values));
-        tmpLineChart.select('.factor-handle')
-            .datum((d) => {
-                    return {id: d.id, value: d.values[d.values.length - 1]}
-            })
-            .attr('transform', d3.transform()
-                .translate((d) => [xScale(d.value.year), yScales[d.id](d.value.value)])
-            )
-        tmpLineChart.select('.factor-label')
-            .datum((d) => {
-                return {id: d.id, value: d.values[d.values.length - 1]}
-            })
-            .attr('transform', d3.transform()
-                .translate((d) => [xScale(d.value.year), yScales[d.id](d.value.value)])
-            )
-    }
+    factorLine.append('text').call(setFactorLabel);
 
-    factorLine.append('text')
+    function setFactorLabel(selection) {
+        selection
             .attr('class', 'factor-label')
             .datum((d) => {
                 return {id: d.id, value: d.values[d.values.length - 1]}
@@ -190,8 +169,18 @@ function draw_factor(data) {
                 .translate((d) => [xScale(d.value.year), yScales[d.id](d.value.value)])
             )
             .text((d) => d.id);
+    }
 
     factorLine.append('circle')
+            .on('mousedown',(d) => {
+                selectedFactor = d.id;
+                updateFocused();
+            })
+            .call(setFactorHandle)
+            .call(dragFactor);
+
+    function setFactorHandle(selection) {
+        selection
             .datum((d) => {
                 return {id: d.id, value: d.values[d.values.length - 1]}
             })
@@ -200,12 +189,27 @@ function draw_factor(data) {
                 .translate((d) => [xScale(d.value.year), yScales[d.id](d.value.value)])
             )
             .attr('r', 10)
+            .attr('z-index', 1)
             .attr('fill', (d) => colorScale(d.id))
-            .on('mousedown',(d) => {
-                selectedFactor = d.id;
-                updateFocused();
-            })
-            .call(dragFactor);
+    }
+
+    function factorDragged(d) {
+        let value = yScales[d.id].invert(d3.event.y);
+        const range = yScales[d.id].domain();
+        value = Math.max(value, range[0]);
+        value = Math.min(value, range[1]);
+        factorValue[d.id] = value;
+        updateLineData();
+        const tmpLineChart = lineChart.selectAll('.factor-line').data(lineData);
+        tmpLineChart.select('.factor-path')
+            .attr('d', (d) => lines[d.id](d.values));
+
+        tmpLineChart.select('.factor-handle')
+            .call(setFactorHandle);
+
+        tmpLineChart.select('.factor-label')
+            .call(setFactorLabel);
+    }
 
     function updateFocused() {
         if (selectedFactor === null) {
