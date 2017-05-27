@@ -13,6 +13,7 @@ var factorValue = {
 
 var selectedFactor = 'marriage rate';
 const factorList = ['marriage rate', 'divorce rate', 'private education expenses'];
+var selectedTime = [{time: 1970}];
 
 function loadFactor() {
     queue()
@@ -45,7 +46,7 @@ function loadFactor() {
         });
 }
 
-function clickcancel() {
+function doubleClick() {
     var event = d3.dispatch('click', 'dblclick');
     function cc(selection) {
         var down = null,
@@ -60,14 +61,14 @@ function clickcancel() {
             down = d3.mouse(this);
             last = +new Date();
         });
-        selection.on('mouseup', function() {
+        selection.on('mouseup', function(d,i) {
             if (down !== null && dist(down, d3.mouse(this)) > tolerance) {
                 return;
             } else {
                 if (wait) {
                     window.clearTimeout(wait);
                     wait = null;
-                    event.dblclick(d3.event);
+                    event.dblclick(d,i);
                 } else {
                     wait = window.setTimeout((function(e) {
                         return function() {
@@ -166,7 +167,7 @@ function draw_factor(data) {
                 return {id: d.id, value: d.values[d.values.length - 1]}
             })
             .attr('transform', d3.transform()
-                .translate((d) => [xScale(d.value.year), yScales[d.id](d.value.value)])
+                .translate((d) => [xScale(d.value.year) + 15, yScales[d.id](d.value.value)])
             )
             .text((d) => d.id);
     }
@@ -230,81 +231,107 @@ function draw_factor(data) {
     updateFocused();
 
     // MARK: time line
-    // TODO: time into data and bind it
-    let time1 = 1970;
-    let time2 = 1920;
     const timeRange = {max: maxYear, min: 1970};
 
-    let doubleClick = clickcancel()
+    let chartDClick = doubleClick()
         .on('dblclick', (d) => {
-            let value = xScale.invert(d.x - 50); //FIXME: not appropriate
+            if (selectedTime.length !== 1) return;
+            let value = xScale.invert(d3.event.x - 50); //FIXME: not appropriate
             value = Math.max(value, timeRange.min);
             value = Math.min(value, timeRange.max);
             value = Math.round(value / 5) * 5;
-            time2 = value;
-            g.select('.timeline2').attr('transform', d3.transform().translate(xScale(time2),0))
-                .attr('opacity', 1)
+            let id = null;
+            if (value > selectedTime[0].time) {
+                selectedTime.splice(1,0, {time: value});
+                id = 'right';
+            } else {
+                selectedTime.splice(0,0, {time: value});
+                console.log(selectedTime);
+                id = 'left';
+            }
+            updateTimeline();
             let timeChangeEvent = new CustomEvent('time_changed', {'detail' : {year: value, id: 'right'}});
             document.dispatchEvent(timeChangeEvent);
         })
 
     g.append('rect')
         .attr('width', chartWidth).attr('height', chartHeight).attr('opacity', 0)
-        .call(doubleClick);
+        .call(chartDClick);
 
-    let dragTimeline1 = d3.behavior.drag()
-        .origin(() => ({x: xScale(time1), y: 0}))
-        .on('drag', timelineDragged1);
+    let dragTimeline = d3.behavior.drag()
+        .origin((d) => ({x: xScale(d.time), y: 0}))
+        .on('drag', timelineDragged);
 
-    function timelineDragged1() {
-        value = xScale.invert(d3.event.x);
-        value = Math.max(value, timeRange.min);
-        value = Math.min(value, timeRange.max);
-        value = Math.round(value / 5) * 5;
-        time1 = value;
-        d3.select(this).attr('transform',
-                                d3.transform().translate(xScale(value),0)
-                            );
-        let id = 'left';
-        if (time2 === 1920)
-            id = 'center';
-        let timeChangeEvent = new CustomEvent('time_changed', { 'detail' : {year: value, id: id}});
-        document.dispatchEvent(timeChangeEvent);
-    }
-
-    let dragTimeline2 = d3.behavior.drag()
-        .origin(() => ({x: xScale(time2), y: 0}))
-        .on('drag', timelineDragged2);
-
-    function timelineDragged2() {
+    function timelineDragged(d,i) {
         let value = xScale.invert(d3.event.x);
         value = Math.max(value, timeRange.min);
         value = Math.min(value, timeRange.max);
         value = Math.round(value / 5) * 5;
-        time2 = value;
-        d3.select(this).attr('transform',
-                                d3.transform().translate(xScale(value),0)
-                            );
-        let timeChangeEvent = new CustomEvent('time_changed', {'detail' : {year: value, id: 'right'}});
+        if (i === 0 && selectedTime.length === 2) {
+            value = Math.min(value, selectedTime[1].time);
+        } else if(i === 1) {
+            value = Math.max(value, selectedTime[0].time);
+        }
+        d.time = value;
+        d3.select(this)
+            .attr('transform', d3.transform()
+                .translate(xScale(value), 0)
+            );
+        emitTimelineEvent(i);
+    }
+
+    function emitTimelineEvent(i) {
+        let id = null;
+        if (selectedTime.length === 1) {
+            id = 'center';
+        } else {
+            id = (i === 0 ? 'left' : 'right');
+        }
+        let timeChangeEvent = new CustomEvent('time_changed', {'detail' : {year: selectedTime[i].time, id: id}});
         document.dispatchEvent(timeChangeEvent);
     }
 
-    let timeLine = g.append('line')
-                        .attr('class','timeline')
-                        .attr('x1', 0).attr('x2', 0).attr('y1', 0).attr('y2',chartHeight)
-                        .attr('transform',
-                            d3.transform().translate(xScale(time1),0)
-                        )
-                        .call(dragTimeline1);
+    let timelineDClick = doubleClick()
+        .on('dblclick', (d,i) => {
+            console.log(i);
+            if (selectedTime.length === 1) return;
+            selectedTime.splice(i,1);
+            console.log(selectedTime);
+            let timeChangeEvent = new CustomEvent('time_changed', {'detail' : {year: selectedTime[0].time, id: 'center'}});
+            document.dispatchEvent(timeChangeEvent);
+            updateTimeline();
+        });
 
-    let timeLine2 = g.append('line')
-                        .attr('class','timeline2')
-                        .attr('x1', 0).attr('x2', 0).attr('y1', 0).attr('y2',chartHeight)
-                        .attr('transform',
-                            d3.transform().translate(xScale(time2),0)
-                        )
-                        .attr('opacity', 0)
-                        .call(dragTimeline2);
+    function updateTimeline() {
+        let timeLine = g.selectAll('.timeline')
+                        .data(selectedTime)
 
+        timeLine
+            .attr('transform', d3.transform()
+                .translate((d) => [xScale(d.time),0])
+            )
+
+        let timeLineEnter = timeLine
+                                .enter()
+                                    .append('g')
+                                        .attr('class', 'timeline')
+                                        .attr('transform',
+                                            d3.transform().translate((d) => [xScale(d.time),0])
+                                        )
+                                        .call(dragTimeline)
+                                        .call(timelineDClick);
+
+        timeLineEnter.append('line')
+                .attr('x1', 0).attr('x2', 0).attr('y1', -10).attr('y2',chartHeight+10);
+        timeLineEnter.append('rect')
+                .attr('width', 20).attr('height', chartHeight).attr('x', -10);
+
+        timeLine.exit()
+            .transition()
+                .style('opacity', 0)
+                .remove();
+    }
+
+    updateTimeline();
 
 }
