@@ -6,13 +6,14 @@ format of data is [
 */
 
 var factorValue = {
-    'marriage rate': 0,
-    'divorce rate': 1.0,
-    'private education expenses': 20.0,
+    'marriage rate': 3.0,
+    'divorce rate': 2.0,
+    'private education expenses': 28.0,
 };
 
 var selectedFactor = 'marriage rate';
 const factorList = ['marriage rate', 'divorce rate', 'private education expenses'];
+var selectedTime = [{time: 1970}];
 
 function loadFactor() {
     queue()
@@ -29,8 +30,8 @@ function loadFactor() {
                     id: id,
                     values: file.map((d) => {
                         return {
-                            year : d.year,
-                            value : d[id],
+                            year : Number(d.year),
+                            value : Number(d[id]),
                         }
                     })
                 }
@@ -39,10 +40,13 @@ function loadFactor() {
             loadOneFactor('divorce rate', file1);
             loadOneFactor('private education expenses', file2);
             draw_factor(json);
+            window.addEventListener('resize', () => {
+                draw_factor(json);
+            });
         });
 }
 
-function clickcancel() {
+function doubleClick() {
     var event = d3.dispatch('click', 'dblclick');
     function cc(selection) {
         var down = null,
@@ -57,14 +61,14 @@ function clickcancel() {
             down = d3.mouse(this);
             last = +new Date();
         });
-        selection.on('mouseup', function() {
+        selection.on('mouseup', function(d,i) {
             if (down !== null && dist(down, d3.mouse(this)) > tolerance) {
                 return;
             } else {
                 if (wait) {
                     window.clearTimeout(wait);
                     wait = null;
-                    event.dblclick(d3.event);
+                    event.dblclick(d,i);
                 } else {
                     wait = window.setTimeout((function(e) {
                         return function() {
@@ -81,12 +85,13 @@ function clickcancel() {
 
 function draw_factor(data) {
     const svg = d3.select('svg#factor-graph');
+    svg.html('');
     const charts = svg.append('g');
     const svgMargin = {
         x: 0, y: 0
     }
     const chartMargin = {
-        left: 50, right: 50, top: 20, bottom: 20
+        left: 50, right: 100, top: 20, bottom: 20
     }
     const containerWidth = $('#factor-container').width();
     const containerHeight = $('#factor-container').height();
@@ -94,6 +99,7 @@ function draw_factor(data) {
     const chartHeight = containerHeight - svgMargin.y * 2 - chartMargin.top - chartMargin.bottom;
     svg.style('width', containerWidth - svgMargin.x * 2).style('height', containerHeight - svgMargin.y * 2);
     const maxYear = 2060;
+    const timeRange = {max: maxYear, min: 1970};
 
     const xScale = d3.scale.linear()
                     .domain([1960, maxYear])
@@ -102,9 +108,10 @@ function draw_factor(data) {
     let yScales = {};
     factorList.forEach((id) => {
         yScales[id] = d3.scale.linear()
-                        .domain([0, d3.max(data[id].values, (d) => (d.value))])
+                        .domain([0.0, d3.max(data[id].values, (d) => (d.value)) * 1.2])
                         .range([chartHeight, 0])
     });
+
     const colorScale = d3.scale.category10().domain(factorList);
 
     let lines = {};
@@ -150,68 +157,95 @@ function draw_factor(data) {
             .attr('d', (d) => lines[d.id](d.values))
             .style('stroke', (d) => colorScale(d.id));
 
+    // MARK: chart background
+    let chartDClick = doubleClick()
+        .on('dblclick', (d) => {
+            if (selectedTime.length !== 1) return;
+            let value = xScale.invert(d3.event.x - 50); //FIXME: not appropriate
+            value = Math.max(value, timeRange.min);
+            value = Math.min(value, timeRange.max);
+            value = Math.round(value / 5) * 5;
+            let id = null;
+            if (value > selectedTime[0].time) {
+                selectedTime.splice(1,0, {time: value});
+                id = 'right';
+            } else {
+                selectedTime.splice(0,0, {time: value});
+                console.log(selectedTime);
+                id = 'left';
+            }
+            updateTimeline();
+            let timeChangeEvent = new CustomEvent('time_changed', {'detail' : {year: value, id: 'right'}});
+            document.dispatchEvent(timeChangeEvent);
+        })
+
+    g.append('rect')
+        .attr('width', chartWidth).attr('height', chartHeight).attr('opacity', 0)
+        .call(chartDClick);
+
+    // MARK: handle container
+    let handleContainer = g.append('g');
+
+    handleContainer.selectAll('.factor-label').data(factorList)
+        .enter()
+        .append('text').call(setFactorLabel);
+
     let dragFactor = d3.behavior.drag()
-        //.origin((d) => ({x: xScale(maxYear), y: yScales[d.id](d.value)}))
         .on('drag', factorDragged);
 
-    function factorDragged(d) {
-        let value = yScales[d.id].invert(d3.event.y);
-        const range = yScales[d.id].domain();
-        value = Math.max(value, range[0]);
-        value = Math.min(value, range[1]);
-        factorValue[d.id] = value;
-        updateLineData();
-        // TODO: refactoring for enter update model
-        const tmpLineChart = lineChart.selectAll('.factor-line').data(lineData);
-        tmpLineChart.select('.line')
-            .attr('d', (d) => lines[d.id](d.values));
-        tmpLineChart.select('.factor-handle')
-            .datum((d) => {
-                    return {id: d.id, value: d.values[d.values.length - 1]}
-            })
+    function setFactorLabel(selection) {
+        selection
+            .attr('class', 'factor-label')
             .attr('transform', d3.transform()
-                .translate((d) => [xScale(d.value.year), yScales[d.id](d.value.value)])
+                .translate((d) => [xScale(maxYear) + 15, yScales[d](factorValue[d])])
             )
-        tmpLineChart.select('.factor-label')
-            .datum((d) => {
-                return {id: d.id, value: d.values[d.values.length - 1]}
-            })
-            .attr('transform', d3.transform()
-                .translate((d) => [xScale(d.value.year), yScales[d.id](d.value.value)])
-            )
+            .text((d) => d);
     }
 
-    factorLine.append('text')
-            .attr('class', 'factor-label')
-            .datum((d) => {
-                return {id: d.id, value: d.values[d.values.length - 1]}
-            })
-            .attr('transform', d3.transform()
-                .translate((d) => [xScale(d.value.year), yScales[d.id](d.value.value)])
-            )
-            .text((d) => d.id);
+    handleContainer.selectAll('.factor-handle').data(factorList)
+        .enter()
+        .append('circle')
+        .on('mousedown',(d) => {
+            selectedFactor = d;
+            updateFocused();
+        })
+        .call(setFactorHandle)
+        .call(dragFactor);
 
-    factorLine.append('circle')
-            .datum((d) => {
-                return {id: d.id, value: d.values[d.values.length - 1]}
-            })
+    function setFactorHandle(selection) {
+        selection
             .attr('class', 'factor-handle')
             .attr('transform', d3.transform()
-                .translate((d) => [xScale(d.value.year), yScales[d.id](d.value.value)])
+                .translate((d) => [xScale(maxYear), yScales[d](factorValue[d])])
             )
             .attr('r', 10)
-            .attr('fill', (d) => colorScale(d.id))
-            .on('mousedown',(d) => {
-                selectedFactor = d.id;
-                updateFocused();
-            })
-            .call(dragFactor);
+            .attr('z-index', 1)
+            .attr('fill', (d) => colorScale(d))
+    }
+
+    function factorDragged(d) {
+        let value = yScales[d].invert(d3.event.y);
+        const range = yScales[d].domain();
+        value = Math.max(value, range[0]);
+        value = Math.min(value, range[1]);
+        factorValue[d] = value;
+        updateLineData();
+        const tmpLineChart = lineChart.selectAll('.factor-line').data(lineData);
+        tmpLineChart.select('.factor-path')
+            .attr('d', (d) => lines[d.id](d.values));
+
+        handleContainer.selectAll('.factor-handle').data(factorList)
+            .call(setFactorHandle);
+
+        handleContainer.selectAll('.factor-label').data(factorList)
+            .call(setFactorLabel);
+    }
 
     function updateFocused() {
         if (selectedFactor === null) {
-            g.select('.axis-y').transition().attr('opacity', 0);
+            g.select('.axis-y').attr('opacity', 0);
         } else {
-            g.select('.axis-y').call(d3.svg.axis().scale(yScales[selectedFactor]).orient('left')).transition().attr('opacity',1);
+            g.select('.axis-y').call(d3.svg.axis().scale(yScales[selectedFactor]).orient('left')).attr('opacity',1);
         }
         const tmpLineChart = lineChart.selectAll('.factor-line').data(lineData).transition()
             .attr('opacity', (d) => {
@@ -221,86 +255,92 @@ function draw_factor(data) {
                     return 0.2;
                 }
             });
+        handleContainer.selectAll('.factor-handle').data(factorList).transition()
+            .attr('opacity', (d) => {
+                if (d === selectedFactor) {
+                    return 1;
+                } else {
+                    return 0.2;
+                }
+            });
     }
 
     updateFocused();
 
-    // MARK: time line
-    // TODO: time into data and bind it
-    let time1 = 1970;
-    let time2 = 1920;
-    const timeRange = {max: maxYear, min: 1970};
+    let dragTimeline = d3.behavior.drag()
+        .origin((d) => ({x: xScale(d.time), y: 0}))
+        .on('drag', timelineDragged);
 
-    let doubleClick = clickcancel()
-        .on('dblclick', (d) => {
-            let value = xScale.invert(d.x - 50); //FIXME: not appropriate
-            value = Math.max(value, timeRange.min);
-            value = Math.min(value, timeRange.max);
-            value = Math.round(value / 5) * 5;
-            time2 = value;
-            g.select('.timeline2').attr('transform', d3.transform().translate(xScale(time2),0))
-                .attr('opacity', 1)
-            let timeChangeEvent = new CustomEvent('time_changed', {'detail' : {year: value, id: 'right'}});
-            document.dispatchEvent(timeChangeEvent);
-        })
-
-    g.append('rect')
-        .attr('width', chartWidth).attr('height', chartHeight).attr('opacity', 0)
-        .call(doubleClick);
-
-    let dragTimeline1 = d3.behavior.drag()
-        .origin(() => ({x: xScale(time1), y: 0}))
-        .on('drag', timelineDragged1);
-
-    function timelineDragged1() {
-        value = xScale.invert(d3.event.x);
-        value = Math.max(value, timeRange.min);
-        value = Math.min(value, timeRange.max);
-        value = Math.round(value / 5) * 5;
-        time1 = value;
-        d3.select(this).attr('transform',
-                                d3.transform().translate(xScale(value),0)
-                            );
-        let id = 'left';
-        if (time2 === 1920)
-            id = 'center';
-        let timeChangeEvent = new CustomEvent('time_changed', { 'detail' : {year: value, id: id}});
-        document.dispatchEvent(timeChangeEvent);
-    }
-
-    let dragTimeline2 = d3.behavior.drag()
-        .origin(() => ({x: xScale(time2), y: 0}))
-        .on('drag', timelineDragged2);
-
-    function timelineDragged2() {
+    function timelineDragged(d,i) {
         let value = xScale.invert(d3.event.x);
         value = Math.max(value, timeRange.min);
         value = Math.min(value, timeRange.max);
         value = Math.round(value / 5) * 5;
-        time2 = value;
-        d3.select(this).attr('transform',
-                                d3.transform().translate(xScale(value),0)
-                            );
-        let timeChangeEvent = new CustomEvent('time_changed', {'detail' : {year: value, id: 'right'}});
+        if (i === 0 && selectedTime.length === 2) {
+            value = Math.min(value, selectedTime[1].time);
+        } else if(i === 1) {
+            value = Math.max(value, selectedTime[0].time);
+        }
+        d.time = value;
+        d3.select(this)
+            .attr('transform', d3.transform()
+                .translate(xScale(value), 0)
+            );
+        emitTimelineEvent(i);
+    }
+
+    function emitTimelineEvent(i) {
+        let id = null;
+        if (selectedTime.length === 1) {
+            id = 'center';
+        } else {
+            id = (i === 0 ? 'left' : 'right');
+        }
+        let timeChangeEvent = new CustomEvent('time_changed', {'detail' : {year: selectedTime[i].time, id: id}});
         document.dispatchEvent(timeChangeEvent);
     }
 
-    let timeLine = g.append('line')
-                        .attr('class','timeline')
-                        .attr('x1', 0).attr('x2', 0).attr('y1', 0).attr('y2',chartHeight)
-                        .attr('transform',
-                            d3.transform().translate(xScale(time1),0)
-                        )
-                        .call(dragTimeline1);
+    let timelineDClick = doubleClick()
+        .on('dblclick', (d,i) => {
+            console.log(i);
+            if (selectedTime.length === 1) return;
+            selectedTime.splice(i,1);
+            console.log(selectedTime);
+            let timeChangeEvent = new CustomEvent('time_changed', {'detail' : {year: selectedTime[0].time, id: 'center'}});
+            document.dispatchEvent(timeChangeEvent);
+            updateTimeline();
+        });
 
-    let timeLine2 = g.append('line')
-                        .attr('class','timeline2')
-                        .attr('x1', 0).attr('x2', 0).attr('y1', 0).attr('y2',chartHeight)
-                        .attr('transform',
-                            d3.transform().translate(xScale(time2),0)
-                        )
-                        .attr('opacity', 0)
-                        .call(dragTimeline2);
+    function updateTimeline() {
+        let timeLine = g.selectAll('.timeline')
+                        .data(selectedTime)
 
+        timeLine
+            .attr('transform', d3.transform()
+                .translate((d) => [xScale(d.time),0])
+            )
+
+        let timeLineEnter = timeLine
+                                .enter()
+                                    .append('g')
+                                        .attr('class', 'timeline')
+                                        .attr('transform',
+                                            d3.transform().translate((d) => [xScale(d.time),0])
+                                        )
+                                        .call(dragTimeline)
+                                        .call(timelineDClick);
+
+        timeLineEnter.append('line')
+                .attr('x1', 0).attr('x2', 0).attr('y1', -10).attr('y2',chartHeight+10);
+        timeLineEnter.append('rect')
+                .attr('width', 20).attr('height', chartHeight).attr('x', -10);
+
+        timeLine.exit()
+            .transition()
+                .style('opacity', 0)
+                .remove();
+    }
+
+    updateTimeline();
 
 }
