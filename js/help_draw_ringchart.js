@@ -15,6 +15,8 @@ function name2range(text) {
     if (text.toString().endsWith('f')) {
         var age = parseInt(text.substr(0, text.length-1));
         text = age + '~' + (age+5);
+    } else if (text === '70ormore') {
+        text = "70 or older";
     }
     return text;
 }
