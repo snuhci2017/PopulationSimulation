@@ -59,6 +59,9 @@ function set_display(){
         $('.side div').css('margin-left', w_margin);
         $('.side div').css('margin-right', w_margin);
 
+        title_fontsize = 0.08 * w_ringchart + 'px';
+        name_fontsize = 0.05 * w_ringchart + 'px';
+        valuetoken_fontsize = 0.03 * w_ringchart + 'px';
     }
 
     function draw_side(keyword) {
