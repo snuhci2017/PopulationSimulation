@@ -80,11 +80,48 @@ function load_population(draw = false) {
     });
 }
 
+function set_simulate_data(f1, f2, f3, f4) {
+    var ages = ['0f', '5f', '10f', '15f', '20f', '25f', '30f', '35f', '40f', '45f', '50f', '55f', '60f', '65f', '70ormore'];
+    // set simulated value from curryear+5 to endyear
+    var get_birthrate = function(v1, v2, v3, v4){
+        var coef0 = [-5.1093, 0.1305, 0.0083, 0.0103, 0.0101];
+        var coef1 = [-0.0265, 0.0472, -0.0168, 0.0609, 0.1934, -0.1046];
+        var coef2 = [-2.3166, -0.0185, -0.0909, -0.2672];
+        var value = 0;
+        value += coef0[0] + coef0[1]*v1 coef0[2]*v2 coef0[3]*v3 coef0[4]*v4;
+        value += coef1[0]*v1*v2 + coef1[1]*v1*v3 + coef1[2]*v1*v4 + coef1[3]*v2*v3 + coef1[4]*v2*v4 + coef1[5]*v3*v4;
+        value += coef2[0]*v1*v1 + coef2[1]*v2*v2 + coef2[2]*v3*v3 + coef2[3]*v4*v4;
+        return value;
+    };
+    var simulate(year) {
+        var get_factor_value = function(f){
+            return f['a'] * year + f['b']
+        };
+        var birthrate = get_birthrate(get_factor_value(f1), get_factor_value(f2), get_factor_value(f3), get_factor_value(f4));
+        var women_d = populationData[year]['female'];
+        var women = 0;
+        for (var i=3; i<=9; i++) {
+            women += women_d[ages[i]];
+        } //age of 15-49
+        console.log(year, birthrate, women); // for debug
+        return birthrate * women / 1000;
+    };
+    for (var year = curryear+5; year<=endyear; year+=5) {
+        var babynum = 0;
+        for (var y = year-4; y <= year; y++) {
+            babynum += simulate(y);
+        }
+        populationData[year]['total']['0f'] = babynum;
+        for (var i=1; i<ages.length; i++) {
+            populationData[year]['total'][ages[i]] = populationData[year-5]['total'][ages[i-1]];
+        }
+        for (var i=0; i<ages.length; i++) {
+            populationData[year]['female'][ages[i]] = populationData[year]['total'][ages[i]]/2;
+        }
+    }
+}
 
 function year2data(year){
-    if (year > curryear) {
-        return simulate();
-    }
 
     var raw_data = populationData[year]['total'];
     var _data = {};
@@ -150,11 +187,6 @@ function year2data(year){
 }
 
 
-function simulate() {
-
-    return year2data(2010);
-
-}
 
 
 

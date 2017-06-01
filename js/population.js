@@ -2,15 +2,7 @@ var numChart = 1;
 
 /* event
  *   - time_changed: {'id':string, 'year':number}
- *
- * functions
- *    - draw_population: first draw (currently draw two charts)
- *    - add_population: one chart -> two charts
- *      :param year:
- *    - delete_population: two charts -> one chart
- *    - draw_ringchart: setting done but only change chart
- *      :param id:
- *      :param year:
+ *   - factor_changed: {'factor1' : {'a': int, 'b': int}, ... }
  *
  * */
 
@@ -59,6 +51,14 @@ document.addEventListener("time_changed", function(e){
             }
         }
     }
+});
+
+document.addEventListener("factor_changed", function(e){
+    var f1 = e.detail['factor1'],
+        f2 = e.detail['factor2'],
+        f3 = e.detail['factor3'],
+        f4 = e.detail['factor4'];
+    set_simulation_data(f1, f2, f3, f4);
 });
 
 function setNumChart(_numChart) {
