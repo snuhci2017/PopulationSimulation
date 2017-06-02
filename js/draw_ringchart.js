@@ -93,7 +93,7 @@ function init_code_hierarchy_plot(data, year, element_id, numChart, color_functi
     var ref = data_slices[0];
     var next_ref = ref;
     var last_refs = [];
-    var innerpadding = 1;
+    var innerpadding = 2;
     var thickness = width/2.0/(max_level+3+innerpadding)*1.1;
 
     var arc = d3.svg.arc()
@@ -159,7 +159,7 @@ function init_code_hierarchy_plot(data, year, element_id, numChart, color_functi
     slices
         .on("mouseover", function(d, i) {
             if (d[3]===4) return;
-            set_title(slices, name2range(d[2]));
+            set_title(slices, name2range(d[2]), 'subtitle');
             var slice = d3.select(this);
             slice.style('cursor', 'pointer');
             d3.select('#'+element_id+'-path'+d[2]).style('stroke', function(d, i) {return color_function(d);});
@@ -167,7 +167,7 @@ function init_code_hierarchy_plot(data, year, element_id, numChart, color_functi
         })
         .on("mouseout", function(d, i) {
             if (d[3]===4) return;
-            set_title(slices, year);
+            set_title(slices, '', 'subtitle');
             var slice = d3.select(this);
             slice.style('cursor', 'default');
             d3.select('#'+element_id+'-path'+d[2]).style('stroke', '#ffffff');

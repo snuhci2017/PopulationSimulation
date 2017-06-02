@@ -20,12 +20,19 @@ function name2range(text) {
     }
     return text;
 }
-function set_title(g, text) {
-    g.select('text#title').remove();
+function set_title(g, text, id = 'title') {
+    var letterSpacing = 'normal';
+    if (text.toString().endsWith('economic-activity')) {
+        letterSpacing = '-1px';
+    }
+    g.select('text#' + id).remove();
     var title = g.append('text')
       .text(text)
-      .style('font-size', title_fontsize)
-      .attr('id', 'title');
+      .style('font-size', (id==='title')? title_fontsize : name_fontsize)
+      .style('letter-spacing', letterSpacing)
+      .attr('dy', (id==='title')? '0' : '1.5em')
+      .attr('id', id);
+
     var title_width = title.style('width');
     title_width = title_width.substring(0, title_width.length-2);
     title.attr('transform', set_translate(-title_width/2, 0));

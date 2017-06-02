@@ -2,10 +2,9 @@ var startyear = 1960,
     endyear = 2040,
     curryear = 2015;
 
-var title_fontsize = '24pt',
-    name_fontsize = '18pt',
+var title_fontsize = '30pt',
+    name_fontsize = '20pt',
     valuetoken_fontsize = '8pt';
-
 
 
 /*
