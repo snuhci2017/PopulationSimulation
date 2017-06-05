@@ -11,6 +11,22 @@
     stroke-width: 1px;
     shape-rendering: crispEdges;
 }
+.axis-x {
+    text {
+        font-size: 12px;
+    }
+}
+
+.axis-y {
+    text {
+        font-size: 12px;
+    }
+}
+
+.factor-label {
+    font-size: 14px;
+    dominant-baseline: middle;
+}
 
 .timeline {
     shape-rendering: crispEdges;
@@ -22,6 +38,6 @@
     rect {
         fill: red;
         stroke: none;
-        opacity: 0;
+        opacity: 0.06;
     }
 }
