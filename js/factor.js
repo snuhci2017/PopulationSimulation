@@ -239,6 +239,8 @@ function draw_factor(data) {
 
         handleContainer.selectAll('.factor-label').data(factorList)
             .call(setFactorLabel);
+
+        emitFactorEvent();
     }
 
     function updateFocused() {
@@ -298,6 +300,23 @@ function draw_factor(data) {
         }
         let timeChangeEvent = new CustomEvent('time_changed', {'detail' : {year: selectedTime[i].time, id: id}});
         document.dispatchEvent(timeChangeEvent);
+    }
+
+    function emitFactorEvent() {
+        let ret = {};
+        factorList.forEach((factorName) => {
+            let values = data[factorName].values;
+            let lastValueItem = values[values.length - 1];
+            let lastYear = lastValueItem.year;
+            let lastValue = lastValueItem.value;
+            let nextYear = maxYear;
+            let nextValue = factorValue[factorName];
+            let a = (nextValue - lastValue) / (nextYear - lastYear);
+            let b = nextValue - a * nextYear;
+            ret[factorName] = {a, b, lastYear};
+        });
+        let factorChangeEvent = new CustomEvent('factor_changed', {'detail': ret});
+        document.dispatchEvent(factorChangeEvent);
     }
 
     let timelineDClick = doubleClick()
