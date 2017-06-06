@@ -6,7 +6,7 @@ var numChart = 1;
  *
  * */
 
-var firstyear = startyear;
+var firstyear = inityear;
 var secondyear = curryear;
 
 

@@ -220,8 +220,10 @@ function init_code_hierarchy_plot(data, year, element_id, numChart, color_functi
         d3.select(_id + " p").html(text);
         if (showimg) {
             $(_id + " img").show();
+            $(_id + " .side-item-title").show();
         } else {
             $(_id + " img").hide();
+            $(_id + " .side-item-title").hide();
         }
     }
 
@@ -238,11 +240,11 @@ function init_code_hierarchy_plot(data, year, element_id, numChart, color_functi
     }
 
     function display_relation(d, i, eid) {
-        function _display_relation(_id, val, blue) {
+        function _display_color(_id, val, blue) {
             var r = document.getElementById(eid+'-slice'+_id);
             r.style.opacity = 1;
             r = document.getElementById(eid+'-path'+_id);
-            var color = 255-Math.floor(255*(val/1000)/key2num[_id]);
+            var color = 255-Math.floor(255*(val*10)/key2num[_id]);
 
             if (blue && r.style.fill===r.style.stroke) {
                 r.style.fill = 'rgb(255,'+color+','+color+')';
@@ -252,19 +254,18 @@ function init_code_hierarchy_plot(data, year, element_id, numChart, color_functi
                 r.style.fill = 'rgb('+color+','+color+',255)';
             }
         }
-        for (age in d[4]['parent']) {
-            _display_relation(age, d[4]['parent'][age], false);
+        function _display_relation(key){
+            var data = d[4][key], tot = 0;
+            for (age in data) tot += data[age];
+            for (age in data) _display_color(age, data[age]/tot, key==='baby');
         }
-
-        for (age in d[4]['baby']) {
-            _display_relation(age, d[4]['baby'][age], true);
-        }
+        _display_relation('parent');
+        _display_relation('baby');
     }
 
     function mouseout(d) {
         set_opacity(1);
         d3.selectAll('.path').style('fill', function(d) {return color_function(d);});
-        //remove_all_text();
     }
 
 }

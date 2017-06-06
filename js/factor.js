@@ -42,8 +42,8 @@ const nameForFactor = {
 
 var selectedFactor = MarriageAge;
 const factorList = [MarriageAge, HousingPrice, EducationRate, FemaleEconomicRate];
-var selectedTime = [{time: 1970}];
-var secondSelectedTime = {time: 2005};
+var selectedTime = [{time: inityear}];
+var secondSelectedTime = {time: curryear};
 
 var isFactorEmitting = false;
 var isFactorChanged = false;

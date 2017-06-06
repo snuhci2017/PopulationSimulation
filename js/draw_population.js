@@ -27,9 +27,9 @@ function draw_ringchart(id, year) {
         var description = "<span id='value'>" + value + "</span>";
         if (!title && type!=='num') {
             if (type === 'ecorate') {
-                description = "<span id='purple'>Purple</span> children generation.";
+                description = "<span id='purple'>Purple</span> children generation";
             } else {
-                description = "<span id='blue'>Blue</span> parents generation.";
+                description = "<span id='blue'>Blue</span> parents generation";
             }
         }
         return description;
