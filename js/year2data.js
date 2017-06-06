@@ -130,15 +130,12 @@ function set_simulation_data(f1, f2, f3, f4) {
             prev_women += populationData[year]['female'][ages[i]];
         }
         women = prev_women + populationData[year]['female'][ages[3]];
-
         babynum = br * women / 1000;
-        //populationData[year]['childrate'] = (prev_women*populationData[year-5]['childrate'] + (women-prev_women)*br/5) / women;
-        //babynum = populationData[year]['childrate'] * women;
         populationData[year]['total']['0f'] = babynum;
-        // 0f/prev_women : childrate = 0f/(women-prev_women)
-        // child
-        populationData[year]['childrate'] = (populationData[year-5]['total']['0f']*prev_women+babynum*(women-prev_women))/women;
-        //console.log(br/5, babynum);
+        var prev_factor = populationData[year-5]['total']['0f']/(prev_women+populationData[year]['female'][ages[10]]),
+            curr_factor = populationData[year]['total']['0f']/women;
+        populationData[year]['childrate'] = populationData[year-5]['childrate']*curr_factor/prev_factor;
+
         draw_population();
     }
     for (var year = startyear; year<=endyear; year+=5) {
