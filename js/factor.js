@@ -132,10 +132,10 @@ function draw_factor(data) {
     const chartHeight = containerHeight - svgMargin.y * 2 - chartMargin.top - chartMargin.bottom;
     svg.style('width', containerWidth - svgMargin.x * 2).style('height', containerHeight - svgMargin.y * 2);
     const maxYear = endyear;
-    const timeRange = {max: maxYear, min: startyear};
+    const timeRange = {max: maxYear - 10, min: startyear};
 
     const xScale = d3.scale.linear()
-                    .domain([startyear - 10, maxYear])
+                    .domain([startyear - 5, maxYear])
                     .range([0, chartWidth])
 
     let yScales = {};
@@ -314,6 +314,25 @@ function draw_factor(data) {
         let timeChangeEvent = new CustomEvent('time_changed', {'detail' : {year: selectedTime[i].time, id: id}});
         document.dispatchEvent(timeChangeEvent);
     }
+
+    function emitFactorEvent() {
+        let ret = {};
+        factorList.forEach((factorName) => {
+            let values = data[factorName].values;
+            let lastValueItem = values[values.length - 1];
+            let lastYear = lastValueItem.year;
+            let lastValue = lastValueItem.value;
+            let nextYear = maxYear;
+            let nextValue = factorValue[factorName];
+            let a = (nextValue - lastValue) / (nextYear - lastYear);
+            let b = nextValue - a * nextYear;
+            ret[factorName] = {a, b, lastYear};
+        });
+        let factorChangeEvent = new CustomEvent('factor_changed', {'detail': ret});
+        document.dispatchEvent(factorChangeEvent);
+    }
+
+    emitFactorEvent();
 
     function modeChangedEvent(numYear) {
         if (numYear === selectedTime.length) return;
