@@ -69,20 +69,25 @@
   }
   .side-item-title {
     flex: 1;
+    width: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-  }
-  .side-div-size {
-    flex: 1;
-    width: 50%;
-    height: 100%;
     img {
       max-height: 80%;
       max-width: 80%;
       width:auto;
       height:auto;
     }
+
+  }
+  .side-div-size {
+    flex: 1;
+    width: 0;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     p {
       margin: 0;
     }
