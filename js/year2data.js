@@ -78,7 +78,7 @@ function load_population(draw = false) {
             for (var year = startyear; year<curryear; year+=5) {
                 year2data_dic[year] = _year2data(year);
             }
-
+            loadFactor();
             load = true;
             if (draw) draw_population();
         });
@@ -167,7 +167,7 @@ function _year2data(year){
         var _year = age2birthyear(age);
         if (_year <= 1910) _year = 1915;
         var relation = relationData[_year];
-        _data[age] = {'num': Math.floor(raw_data[age]/1000),
+        _data[age] = {'num': raw_data[age]/1000000,
           'ecorate': 0,
           'childrate': 0,
           'parent': {},

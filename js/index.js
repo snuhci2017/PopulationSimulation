@@ -7,6 +7,5 @@
         load_population(true);
     }
 
-    loadFactor();
 
 })();;

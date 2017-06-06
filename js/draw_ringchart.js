@@ -218,7 +218,6 @@ function init_code_hierarchy_plot(data, year, element_id, numChart, color_functi
 
     function _display_legend(_id, text, showimg=true) {
         d3.select(_id + " p").html(text);
-        console.log(_id, showimg);
         if (showimg) {
             $(_id + " img").show();
         } else {
