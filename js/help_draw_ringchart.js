@@ -20,22 +20,29 @@ function name2range(text) {
     }
     return text;
 }
-function set_title(g, text, id = 'title') {
-    var letterSpacing = 'normal';
-    if (text.toString().endsWith('economic-activity')) {
-        letterSpacing = '-1px';
-    }
-    g.select('text#' + id).remove();
-    var title = g.append('text')
-      .text(text)
-      .style('font-size', (id==='title')? title_fontsize : name_fontsize)
-      .style('letter-spacing', letterSpacing)
-      .attr('dy', (id==='title')? '0' : '1.5em')
-      .attr('id', id);
+function set_title(g, text, _class = 'title') {
+    g.selectAll('text.' + _class).remove();
 
-    var title_width = title.style('width');
-    title_width = title_width.substring(0, title_width.length-2);
-    title.attr('transform', set_translate(-title_width/2, 0));
+    if (text.toString().endsWith('economic-activity')) {
+        var ind = text.indexOf('-activity');
+        _set_title(text.substring(0, ind), '-1px', '-0.5em');
+        _set_title(text.substring(ind, text.length), '-1px', '0.5em');
+    } else {
+        _set_title(text, 'normal', '0');
+    }
+
+    function _set_title(_text, _ls, _dy) {
+        var title = g.append('text')
+          .text(_text)
+          .style('font-size', name_fontsize)
+          .style('letter-spacing', _ls)
+          .attr('dy', _dy)
+          .attr('class', _class);
+        var title_width = title.style('width');
+        title_width = title_width.substring(0, title_width.length-2);
+        title.attr('transform', set_translate(-title_width/2, 0));
+    }
+
 }
 
 function get_start_angle(d,ref) {
