@@ -100,7 +100,8 @@ function set_simulation_data(f1, f2, f3, f4) {
         value += coef2[0]*v1*v1 + coef2[1]*v2*v2 + coef2[2]*v3*v3 + coef2[3]*v4*v4;
         console.log(v1,v2,v3,v4,value);
         */
-        value = 2.5 - (v1+v2+v3+v4) * 0.008;
+        //value = 2.5 - (v1+v2+v3+v4) * 0.008;
+        value = 1/(6*5);
         return value;
     };
     var simulate = function (year) {
@@ -113,7 +114,10 @@ function set_simulation_data(f1, f2, f3, f4) {
         var babynum = 0;
         populationData[year] = {'total':{'0f':0}, 'female':{}};
         for (var i=1; i<ages.length; i++) {
-            populationData[year]['total'][ages[i]] = populationData[year-5]['total'][ages[i-1]];
+            if (i===ages.length-1)
+                populationData[year]['total'][ages[i]] = (populationData[year-5]['total'][ages[i]] + populationData[year-5]['total'][ages[i-1]])/2;
+            else
+                populationData[year]['total'][ages[i]] = populationData[year-5]['total'][ages[i-1]];
         }
         for (var i=0; i<ages.length; i++) {
             populationData[year]['female'][ages[i]] = populationData[year]['total'][ages[i]]/2;
@@ -125,11 +129,16 @@ function set_simulation_data(f1, f2, f3, f4) {
         for (var i=4; i<=9; i++) {
             prev_women += populationData[year]['female'][ages[i]];
         }
-        women += populationData[year]['female'][ages[3]];
-        populationData[year]['childrate'] = (prev_women*populationData[year-5]['childrate'] + (women-prev_women)*br/5) / women;
-        babynum = populationData[year]['childrate'] * women;
+        women = prev_women + populationData[year]['female'][ages[3]];
+
+        babynum = br * women;
+        //populationData[year]['childrate'] = (prev_women*populationData[year-5]['childrate'] + (women-prev_women)*br/5) / women;
+        //babynum = populationData[year]['childrate'] * women;
         populationData[year]['total']['0f'] = babynum;
-        console.log(br/5, babynum);
+        // 0f/prev_women : childrate = 0f/(women-prev_women)
+        // child
+        populationData[year]['childrate'] = (populationData[year-5]['total']['0f']*prev_women+babynum*(women-prev_women))/women;
+        //console.log(br/5, babynum);
     }
     for (var year = startyear; year<=endyear; year+=5) {
         year2data_dic[year] = _year2data(year);

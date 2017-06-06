@@ -16,31 +16,49 @@
           <link href="style/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet">
           <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.0/css/font-awesome.min.css">
           <link href="style/css/main.css" rel="stylesheet">
-          <link href="style/css/population.css" rel="stylesheet">
       </head>
 
       <body>
+          <div id="nav-container">
+              <div id="nav-subcontainer">
+                <p class="site-title">Population<br>Simulation</p>
+                <nav class="site-nav">
+                    <a class="site-nav-item" id="nav-one-year" num-year="1">특정 연도의 인구분포</a>
+                    <a class="site-nav-item" id="nav-two-year" num-year="2">두 연도의 인구분포 비교</a>
+                </nav>
+              </div>
+          </div>
+          <div id="main-container-parent">
           <div id='main-container'>
-
               <div id="population-container">
                   <div class="side" id="side-left">
-                      <div class="first number tot">
-                      </div>
-                      <div class="first work tot">
-                      </div>
-                      <div class="first children tot">
-                      </div>
+                    <div class="side-title">
+                        <span class="tot side-title-span"></span>
+                    </div>
+                    <div class="side-container">
+                        <div class="side-item first number tot">
+                        </div>
+                        <div class="side-item first work tot">
+                        </div>
+                        <div class="side-item first children tot">
+                        </div>
+                    </div>
                   </div>
                   <svg id="first" class="ring-chart">
                   </svg>
                   <svg id="second" class="ring-chart">
                   </svg>
                   <div class="side" id="side-right">
-                      <div class="number curr">
+                      <div class="curr side-title">
+                          <span class="curr side-title-span"></span>
                       </div>
-                      <div class="work curr">
-                      </div>
-                      <div class="children curr">
+                      <div class="side-container">
+                        <div class="side-item number curr">
+                        </div>
+                        <div class="side-item work curr">
+                        </div>
+                        <div class="side-item children curr">
+                        </div>
                       </div>
                   </div>
               </div>
@@ -49,6 +67,7 @@
                   <svg id="factor-graph"></svg>
               </div>
 
+          </div>
           </div>
 
 
@@ -67,6 +86,7 @@
           <!-- factor js codes -->
           <script src="js/factor.js"></script>
           <!-- main -->
+          <script src="js/navigation.js"></script>
           <script src="js/index.js"></script>
     </body>
 </html>

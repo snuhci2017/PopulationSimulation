@@ -8,6 +8,7 @@ function draw_ringchart(id, year) {
         return d[4]['num'];
     }
     function legend_function(type, d, title=false) {
+        /*
         var name;
         if (type === 'num') name = 'Population';
         else if (type === 'ecorate') name = 'Aged dependency ratio';
@@ -18,6 +19,12 @@ function draw_ringchart(id, year) {
         if (!title) description += ' of ' + name2range(d[2]);
         description += " is <br /><span id='value'>" + value + "</span>";
         if (type === 'num') description += 'K';
+        return description;
+        */
+        var value = title? d[type] : d[4][type];
+        if (type!=='num') value = value.toFixed(2);
+        else value = value + 'K';
+        var description = "<span id='value'>" + value + "</span>";
         return description;
     }
     function color_function(d) {
@@ -51,11 +58,14 @@ function set_display(){
             w_side = 0.85*w_rest;
             w_margin = 0.05*w_rest;
         }
+
+        /*
         $('.ring-chart').width(w_ringchart);
         $('.ring-chart').height(w_ringchart);
         $('.side div').width(w_side);
         $('.side div').css('margin-left', w_margin);
         $('.side div').css('margin-right', w_margin);
+        */
 
         title_fontsize = 0.08 * w_ringchart + 'px';
         name_fontsize = 0.05 * w_ringchart + 'px';
@@ -63,6 +73,19 @@ function set_display(){
     }
 
     function draw_side(keyword) {
+        var name;
+        switch (keyword) {
+            case 'number': name = '인구수'; break;
+            case 'work': name = '고령화지수'; break;
+            case 'children': name = '가족 당 아이수'; break;
+        }
+
+        $('.' + keyword).each(function(index) {
+            let img = '<img src="' + imgurl[keyword] + '">';
+            let divForRight = '<div class="side-div-size"><p></p>' + img + '</div>';
+            $(this).html('<div class="side-item-title">' + name + '</div>' + divForRight);
+        });
+        /*
         divs = document.getElementsByClassName(keyword);
         for (var i=0; i<divs.length; i++) {
             var img = document.createElement('img');
@@ -72,6 +95,7 @@ function set_display(){
             divs[i].append(img);
             divs[i].append(document.createElement('p'));
         }
+        */
     }
 
     adjust_display();
