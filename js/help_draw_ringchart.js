@@ -21,8 +21,8 @@ function name2range(text) {
     return text;
 }
 function set_title(g, text, _class = 'title') {
-    g.select('text.title').remove();
-    g.select('text.subtitle').remove();
+    g.selectAll('text.title').remove();
+    g.selectAll('text.subtitle').remove();
     if (text.toString().endsWith('economic-activity')) {
         var ind = text.indexOf('-activity');
         _set_title(text.substring(0, ind), '-1px', '-0.5em');
