@@ -130,11 +130,11 @@ function draw_factor(data) {
     const chartWidth = containerWidth - svgMargin.x * 2 - chartMargin.left - chartMargin.right;
     const chartHeight = containerHeight - svgMargin.y * 2 - chartMargin.top - chartMargin.bottom;
     svg.style('width', containerWidth - svgMargin.x * 2).style('height', containerHeight - svgMargin.y * 2);
-    const maxYear = 2040;
-    const timeRange = {max: maxYear, min: 1970};
+    const maxYear = endyear;
+    const timeRange = {max: maxYear, min: startyear};
 
     const xScale = d3.scale.linear()
-                    .domain([1960, maxYear])
+                    .domain([startyear - 10, maxYear])
                     .range([0, chartWidth])
 
     let yScales = {};
