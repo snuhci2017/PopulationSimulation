@@ -144,7 +144,8 @@ function init_code_hierarchy_plot(data, year, element_id, numChart, color_functi
     var other_slices = null;
     var other_id;
 
-    if(numChart == 2) {
+    slices_dic[element_id] = [slices, data_slices];
+    if(numChart === 2) {
         other_id = (element_id === 'first')? 'second' : 'first';
         other_slices = slices_dic[other_id];
     }
@@ -156,7 +157,7 @@ function init_code_hierarchy_plot(data, year, element_id, numChart, color_functi
             var slice = d3.select(this);
             slice.style('cursor', 'pointer');
             d3.select('#'+element_id+'-path'+d[2]).style('stroke', function(d, i) {return color_function(d);});
-            if (clicked === null || clicked === i) display_legend(d, true);
+            //if (clicked === null || clicked === i) display_legend(d, true);
         })
         .on("mouseout", function(d, i) {
             if (d[3]===4) return;
@@ -180,6 +181,7 @@ function init_code_hierarchy_plot(data, year, element_id, numChart, color_functi
             clicked = i;
         } else {
             mouseout(d, i);
+            display_legend(d, false);
             clicked = null;
         }
     });
@@ -193,22 +195,35 @@ function init_code_hierarchy_plot(data, year, element_id, numChart, color_functi
                 clicked = i;
             } else {
                 mouseout(d, i);
+                display_legend(d, false);
                 clicked = null;
             }
         });
     }
 
-    d3.select("." + element_id + ".tot.number p").html(legend_function('num', data_dic[0][''], true));
-    d3.select("." + element_id + ".tot.work p").html(legend_function('ecorate', data_dic[0][''], true));
-    d3.select("." + element_id + ".tot.children p").html(legend_function('childrate', data_dic[0][''], true));
+    _display_legend("." + element_id + ".tot.number", legend_function('num', data_dic[0][''], true));
+    _display_legend("." + element_id + ".tot.work", legend_function('ecorate', data_dic[0][''], true));
+    _display_legend("." + element_id + ".tot.children", legend_function('childrate', data_dic[0][''], true));
 
-    d3.select('.tot.side-title-span').text(year);
+    var side_id = (element_id === 'first')? 'left': 'right';
+    d3.select("#side-" + side_id + ' .tot.side-title-span').text(year);
+    d3.select(".curr.side-title-span").text(year);
 
     function display_legend(d, display) {
-        d3.select(".curr.number p").html((display)? legend_function('num', d) : '');
-        d3.select(".curr.work p").html((display)? legend_function('ecorate', d) : '');
-        d3.select(".curr.children p").html((display)? legend_function('childrate', d) : '');
-        d3.select('.curr.side-title-span').text((display)? d[2]  : '');
+        _display_legend(".curr.number", (display)? legend_function('num', d) : '');
+        _display_legend(".curr.work", (display)? legend_function('ecorate', d) : '', !display);
+        _display_legend(".curr.children", (display)? legend_function('childrate', d) : '', !display);
+        d3.select('.curr.side-title-span').html((display)? d[2]  : year);
+    }
+
+    function _display_legend(_id, text, showimg=true) {
+        d3.select(_id + " p").html(text);
+        console.log(_id, showimg);
+        if (showimg) {
+            $(_id + " img").show();
+        } else {
+            $(_id + " img").hide();
+        }
     }
 
     function display_arc(d, i){
