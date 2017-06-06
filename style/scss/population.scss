@@ -33,6 +33,7 @@
   margin-top: auto;
   margin-bottom: auto;
   border: solid black 1px;
+  
   .side-container {
     position: relative;
     height: calc(100% - 30px);
@@ -79,6 +80,11 @@
     }
 
   }
+
+  .curr img {
+      display: none;
+  }
+
   .side-div-size {
     flex: 1;
     width: 0;

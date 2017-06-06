@@ -209,9 +209,9 @@ function init_code_hierarchy_plot(data, year, element_id, numChart, color_functi
     d3.select(".curr.side-title-span").text(year);
 
     function display_legend(d, display) {
-        _display_legend(".curr.number", (display)? legend_function('num', d) : '');
-        _display_legend(".curr.work", (display)? legend_function('ecorate', d) : '', !display);
-        _display_legend(".curr.children", (display)? legend_function('childrate', d) : '', !display);
+        _display_legend(".curr.number", (display)? legend_function('num', d) : '', display);
+        _display_legend(".curr.work", (display)? legend_function('ecorate', d) : '', false);
+        _display_legend(".curr.children", (display)? legend_function('childrate', d) : '', false);
         d3.select('.curr.side-title-span').html((display)? d[2]  : year);
     }
 
