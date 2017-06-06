@@ -252,6 +252,8 @@ function draw_factor(data) {
 
         handleContainer.selectAll('.factor-label').data(factorList)
             .call(setFactorLabel);
+
+        emitFactorEvent();
     }
 
     function updateFocused() {

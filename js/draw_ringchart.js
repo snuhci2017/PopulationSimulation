@@ -3,13 +3,11 @@ var clicked = null;
 
 function init_code_hierarchy_plot(data, year, element_id, numChart, color_function, title_function,legend_function){
 
-
     var plot = document.getElementById(element_id);
 
     while (plot.hasChildNodes()){
         plot.removeChild(plot.firstChild);
     }
-
 
     var x_margin = 0;
     var y_margin = 0;
@@ -30,7 +28,6 @@ function init_code_hierarchy_plot(data, year, element_id, numChart, color_functi
         {},
         data
     ];
-
     function sum(l, level) {
         var s = {};
         for(var i=0; i<l.length; i++) {
@@ -60,7 +57,6 @@ function init_code_hierarchy_plot(data, year, element_id, numChart, color_functi
         return s;
     }
 
-
     data_dic[2]['Underage'] = sum(['0f', '5f', '10f', '15f'], 3);
     data_dic[2]['Adult'] = sum(['20f','25f', '30f','35f'], 3);
     data_dic[2]['Middle-aged'] = sum(['40f', '45f', '50f','55f'], 3);
@@ -89,13 +85,11 @@ function init_code_hierarchy_plot(data, year, element_id, numChart, color_functi
             key2num[keys[i]] = curr_data['num']
         }
     }
-
     var ref = data_slices[0];
     var next_ref = ref;
     var last_refs = [];
     var innerpadding = 2;
     var thickness = width/2.0/(max_level+3+innerpadding)*1.1;
-
     var arc = d3.svg.arc()
                 .startAngle(function(d) {
                     //if(d[3]==0){return d[0];}
@@ -113,7 +107,6 @@ function init_code_hierarchy_plot(data, year, element_id, numChart, color_functi
                     var depth = d[3] + innerpadding;
                     return (1.1*depth+1)*thickness;
                 });
-
     var slices = g.selectAll(".form")
                    .data(function(d) { return data_slices; })
                    .enter()

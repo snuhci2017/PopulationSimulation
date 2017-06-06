@@ -47,7 +47,6 @@ function set_display(){
         // wr + 2ws + 4m = w
         var w_ringchart = h*0.9;
         var w_rest = (w-numChart * h)/2, w_side, w_margin;
-        console.log(w, h, w_ringchart, w_rest);
         if (w_rest < 140) {
             if (w_ringchart * numChart > w-250) w_ringchart = (w-250) / numChart;
             w_side = 100;
@@ -59,7 +58,7 @@ function set_display(){
             w_side = 0.85*w_rest;
             w_margin = 0.05*w_rest;
         }
-        console.log(w_ringchart, w_side, w_margin);
+
         /*
         $('.ring-chart').width(w_ringchart);
         $('.ring-chart').height(w_ringchart);
