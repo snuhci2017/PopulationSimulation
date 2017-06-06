@@ -3,7 +3,7 @@ import numpy as np
 from sklearn import linear_model
 from sklearn.preprocessing import PolynomialFeatures
 
-DATA_PATH = '../data/simulation_data.csv'
+DATA_PATH = '../data/simulation_data3.csv'
 
 def main():
     data = []
@@ -14,10 +14,10 @@ def main():
             data.append(row)
 
     labels = list(data[0].keys())
-    y_label = 'total birth rate'
-    x_labels = [i for i in labels if i!=y_label and not i.endswith('year')]
+    y_labels = ['new born baby', 'female count']
+    x_labels = [i for i in labels if i not in y_labels and not i.endswith('year')]
     print ("dependent variables:", x_labels)
-    print ("independent variable:", y_label)
+    print ("independent variable:", y_labels)
 
     xi, y = [], []
     for d in data:
@@ -25,10 +25,11 @@ def main():
         if '' in xs: continue
         xs = [float(x) for x in xs]
         xi.append([sum(xs)])
-        y.append(float(d[y_label]))
+        y.append(1000*float(d[y_labels[0]])/float(d[y_labels[1]]))
         #print (xi[-1], y[-1])
-        print (2.5 - 0.008*xi[-1][0], y[-1])
-    #v = linregress(xi, y)
+        #print (46.66 - 0.0429*xi[-1][0], y[-1])
+        print (100 - 0.25*xi[-1][0], y[-1])
+    linregress(xi, y)
 
 
 def linregress(xi, y):

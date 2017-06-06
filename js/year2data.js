@@ -100,8 +100,8 @@ function set_simulation_data(f1, f2, f3, f4) {
         value += coef2[0]*v1*v1 + coef2[1]*v2*v2 + coef2[2]*v3*v3 + coef2[3]*v4*v4;
         console.log(v1,v2,v3,v4,value);
         */
-        //value = 2.5 - (v1+v2+v3+v4) * 0.008;
-        value = 1/(6*5);
+        //value = 46.66 - (v1+v2+v3+v4) * 0.0429;
+        value = 85 - (v1+v2+v3+v4)*0.25;
         return value;
     };
     var simulate = function (year) {
@@ -131,7 +131,7 @@ function set_simulation_data(f1, f2, f3, f4) {
         }
         women = prev_women + populationData[year]['female'][ages[3]];
 
-        babynum = br * women;
+        babynum = br * women / 1000;
         //populationData[year]['childrate'] = (prev_women*populationData[year-5]['childrate'] + (women-prev_women)*br/5) / women;
         //babynum = populationData[year]['childrate'] * women;
         populationData[year]['total']['0f'] = babynum;
@@ -139,6 +139,7 @@ function set_simulation_data(f1, f2, f3, f4) {
         // child
         populationData[year]['childrate'] = (populationData[year-5]['total']['0f']*prev_women+babynum*(women-prev_women))/women;
         //console.log(br/5, babynum);
+        draw_population();
     }
     for (var year = startyear; year<=endyear; year+=5) {
         year2data_dic[year] = _year2data(year);
