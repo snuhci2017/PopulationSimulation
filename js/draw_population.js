@@ -89,8 +89,8 @@ function set_display(){
 
         $('.' + keyword).each(function(index) {
             let img = '<img src="' + imgurl[keyword] + '">';
-            let divForRight = '<div class="side-div-size"><p></p>' + img + '</div>';
-            $(this).html('<div class="side-item-title">' + name + '</div>' + divForRight);
+            let divForRight = '<div class="side-div-size"><p></p></div>';
+            $(this).html('<div class="side-item-title">' + img + '</div>' + divForRight);
         });
         /*
         divs = document.getElementsByClassName(keyword);
