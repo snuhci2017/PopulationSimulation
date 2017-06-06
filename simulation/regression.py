@@ -24,33 +24,33 @@ def main():
         xs = [d[x] for x in x_labels]
         if '' in xs: continue
         xs = [float(x) for x in xs]
-        xi.append(xs)
+        xi.append([sum(xs)])
         y.append(float(d[y_label]))
+        #print (xi[-1], y[-1])
+        print (2.5 - 0.008*xi[-1][0], y[-1])
+    #v = linregress(xi, y)
 
-    linregress(xi, y)
 
 def linregress(xi, y):
-    primes = [2, 3, 5, 7]
-    poly = PolynomialFeatures(degree=2)
-    xi = poly.fit_transform(xi)
-    desc = poly.fit_transform(primes)
-    alpha = (1 + np.random.randint(100)) * 0.001
+    #primes = [2, 3, 5, 7]
+    #poly = PolynomialFeatures(degree=2)
+    #xi = poly.fit_transform(xi)
+    #desc = poly.fit_transform(primes)
+    alpha =  (1 + np.random.randint(100)) * 0.0001
     clf = linear_model.Ridge(alpha = alpha)
     clf.fit(xi, y)
     coef = clf.coef_
     intercept = clf.intercept_
     violate = 0
     for i in range(len(coef)):
-        if (desc[0][i] in [4, 9, 25, 49] and coef[i]>=0): violate += 1
-        print (coef[i], desc[0][i])
+        print (coef[i])
     print (intercept)
-    if (violate>0): return False
     print ("="*10)
     for i in range(9):
         pred_y = intercept
-        for j in range(len(desc[0])):
+        for j in range(1):
             pred_y += coef[j] * xi[i][j]
-        print (i, pred_y, y[i])
+        print (i, xi[i], pred_y, y[i])
 
 if __name__ == '__main__':
     main()

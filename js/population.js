@@ -9,6 +9,7 @@ var numChart = 1;
 var firstyear = startyear;
 var secondyear = curryear;
 
+
 function draw_population() {
     set_display();
     draw_ringchart('first', firstyear);
@@ -54,10 +55,10 @@ document.addEventListener("time_changed", function(e){
 });
 
 document.addEventListener("factor_changed", function(e){
-    var f1 = e.detail['factor1'],
-        f2 = e.detail['factor2'],
-        f3 = e.detail['factor3'],
-        f4 = e.detail['factor4'];
+    var f1 = e.detail['marriage age'],
+        f2 = e.detail['education rate'],
+        f3 = e.detail['housing price'],
+        f4 = e.detail['female economic rate'];
     set_simulation_data(f1, f2, f3, f4);
 });
 
