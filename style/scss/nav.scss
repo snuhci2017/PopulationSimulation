@@ -1,0 +1,34 @@
+.site-title {
+    margin-top: 10px;
+    font-size: 25px;
+}
+
+#nav-container {
+    padding: 20px 20px;
+}
+
+#nav-subcontainer {
+    width: 100%;
+    height: 100%;
+    border: 2px #eeeeee solid;
+}
+
+.site-nav-item {
+    display: block;
+    width: 100%;
+    line-height: 2;
+    margin: 10px 0px;
+    font-size: 16px;
+    color: gray;
+    cursor: pointer;
+
+    &:hover {
+        text-decoration: none;
+        color: black;
+    }
+
+    &.is-active {
+        background-color: #eeeeee;
+        color: black;
+    }
+}

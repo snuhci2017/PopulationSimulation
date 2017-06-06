@@ -209,10 +209,13 @@ function init_code_hierarchy_plot(data, year, element_id, numChart, color_functi
     d3.select("." + element_id + ".tot.work p").html(legend_function('ecorate', data_dic[0][''], true));
     d3.select("." + element_id + ".tot.children p").html(legend_function('childrate', data_dic[0][''], true));
 
+    d3.select('.tot.side-title-span').text(year);
+
     function display_legend(d, display) {
         d3.select(".curr.number p").html((display)? legend_function('num', d) : '');
         d3.select(".curr.work p").html((display)? legend_function('ecorate', d) : '');
         d3.select(".curr.children p").html((display)? legend_function('childrate', d) : '');
+        d3.select('.curr.side-title-span').text((display)? d[2]  : '');
     }
 
     function display_arc(d, i){
