@@ -8,21 +8,32 @@ html, body {
   padding: 0;
 }
 
+#nav-container {
+  position: fixed;
+  width: 20%;
+  height: 100%;
+}
+
+#main-container-parent {
+  margin-left: 20%;
+  width: 80%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
 #main-container{
   display: flex;
   flex-direction: column;
-  background-color: #ffffbf;
-  margin-left: auto;
-  margin-right: auto;
-  margin-top: 0;
-  margin-bottom: 0;
+  margin-top: auto;
+  margin-bottom: auto;
   width: 100%;
-  height: 100%;
+  height: 80%;
 }
 
 #population-container, #factor-container{
   background-color: white;
-  margin: 20px;
   text-align: center;
   width: 96%;
 }
@@ -31,10 +42,18 @@ html, body {
   display: flex;
   flex-direction: row;
   vertical-align: middle;
+  height: 0;
+  margin: 0px 20px;
 }
 #factor-container{
   flex: 4;
   height: 0;
+  margin: 0px -50px 0px 50px;
+}
+svg text {
+    shape-rendering: crispEdges;
 }
 
+@import 'nav';
 @import 'factor';
+@import 'population'
