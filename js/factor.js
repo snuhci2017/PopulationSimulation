@@ -45,6 +45,9 @@ const factorList = [MarriageAge, HousingPrice, EducationRate, FemaleEconomicRate
 var selectedTime = [{time: 1970}];
 var secondSelectedTime = {time: 2005};
 
+var isFactorEmitting = false;
+var isFactorChanged = false;
+
 function loadFactor() {
     queue()
         .defer(d3.csv, "data/economic female rate.csv")
@@ -316,6 +319,17 @@ function draw_factor(data) {
     }
 
     function emitFactorEvent() {
+        if (isFactorEmitting) {
+            isFactorChanged = true;
+            return;
+        }
+        _emitFactorEvent();
+    }
+
+    function _emitFactorEvent() {
+        console.log("EmitFactor");
+        isFactorChanged = false;
+        isFactorEmitting = true;
         let ret = {};
         factorList.forEach((factorName) => {
             let values = data[factorName].values;
@@ -330,6 +344,13 @@ function draw_factor(data) {
         });
         let factorChangeEvent = new CustomEvent('factor_changed', {'detail': ret});
         document.dispatchEvent(factorChangeEvent);
+        setTimeout(() => {
+            if (isFactorChanged) {
+                _emitFactorEvent();
+                return;
+            }
+            isFactorEmitting = false;
+        }, 1000);
     }
 
     emitFactorEvent();
