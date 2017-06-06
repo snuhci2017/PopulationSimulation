@@ -43,6 +43,7 @@ const nameForFactor = {
 var selectedFactor = MarriageAge;
 const factorList = [MarriageAge, HousingPrice, EducationRate, FemaleEconomicRate];
 var selectedTime = [{time: 1970}];
+var secondSelectedTime = {time: 2005};
 
 function loadFactor() {
     queue()
@@ -195,32 +196,6 @@ function draw_factor(data) {
             .attr('d', (d) => lines[d.id](d.values))
             .style('stroke', (d) => colorScale(d.id));
 
-    // MARK: chart background
-    let chartDClick = doubleClick()
-        .on('dblclick', (d) => {
-            if (selectedTime.length !== 1) return;
-            let value = xScale.invert(d3.event.x - 50); //FIXME: not appropriate
-            value = Math.max(value, timeRange.min);
-            value = Math.min(value, timeRange.max);
-            value = Math.round(value / 5) * 5;
-            let id = null;
-            if (value > selectedTime[0].time) {
-                selectedTime.splice(1,0, {time: value});
-                id = 'right';
-            } else {
-                selectedTime.splice(0,0, {time: value});
-                console.log(selectedTime);
-                id = 'left';
-            }
-            updateTimeline();
-            let timeChangeEvent = new CustomEvent('time_changed', {'detail' : {year: value, id: 'right'}});
-            document.dispatchEvent(timeChangeEvent);
-        })
-
-    g.append('rect')
-        .attr('width', chartWidth).attr('height', chartHeight).attr('opacity', 0)
-        .call(chartDClick);
-
     // MARK: handle container
     let handleContainer = g.append('g');
 
@@ -340,42 +315,34 @@ function draw_factor(data) {
         document.dispatchEvent(timeChangeEvent);
     }
 
-    function emitFactorEvent() {
-        let ret = {};
-        factorList.forEach((factorName) => {
-            let values = data[factorName].values;
-            let lastValueItem = values[values.length - 1];
-            let lastYear = lastValueItem.year;
-            let lastValue = lastValueItem.value;
-            let nextYear = maxYear;
-            let nextValue = factorValue[factorName];
-            let a = (nextValue - lastValue) / (nextYear - lastYear);
-            let b = nextValue - a * nextYear;
-            ret[factorName] = {a, b, lastYear};
-        });
-        let factorChangeEvent = new CustomEvent('factor_changed', {'detail': ret});
-        document.dispatchEvent(factorChangeEvent);
-    }
-
-    let timelineDClick = doubleClick()
-        .on('dblclick', (d,i) => {
-            console.log(i);
-            if (selectedTime.length === 1) return;
-            selectedTime.splice(i,1);
-            console.log(selectedTime);
-            let timeChangeEvent = new CustomEvent('time_changed', {'detail' : {year: selectedTime[0].time, id: 'center'}});
-            document.dispatchEvent(timeChangeEvent);
+    function modeChangedEvent(numYear) {
+        if (numYear === selectedTime.length) return;
+        if (numYear === 1) {
+            secondSelectedTime = selectedTime[1];
+            selectedTime.splice(1,1);
             updateTimeline();
-        });
+            emitTimelineEvent(0);
+        } else { // numYear === 2
+            let secondTime = secondSelectedTime.time;
+            if (secondTime < selectedTime[0].time)
+                selectedTime.splice(0,0, {time: secondTime});
+            else
+                selectedTime.splice(1,0, {time: secondTime});
+            updateTimeline();
+            emitTimelineEvent(0);
+            emitTimelineEvent(1);
+        }
+    }
+    factorEvents.modeChangedEvent = modeChangedEvent;
 
     function updateTimeline() {
         let timeLine = g.selectAll('.timeline')
-                        .data(selectedTime)
+                        .data(selectedTime);
 
         timeLine
             .attr('transform', d3.transform()
                 .translate((d) => [xScale(d.time),0])
-            )
+            );
 
         let timeLineEnter = timeLine
                                 .enter()
@@ -384,8 +351,7 @@ function draw_factor(data) {
                                         .attr('transform',
                                             d3.transform().translate((d) => [xScale(d.time),0])
                                         )
-                                        .call(dragTimeline)
-                                        .call(timelineDClick);
+                                        .call(dragTimeline);
 
         timeLineEnter.append('line')
                 .attr('x1', 0).attr('x2', 0).attr('y1', -10).attr('y2',chartHeight);
@@ -400,4 +366,7 @@ function draw_factor(data) {
 
     updateTimeline();
 
+
 }
+
+var factorEvents = {};
