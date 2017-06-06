@@ -35,3 +35,35 @@
         color: white;
     }
 }
+
+#icon-mapping-container {
+    width: 100%;
+    margin-top: 30px;
+    display: flex;
+    flex-direction: column;
+}
+
+.icon-mapping-item {
+    width: 100%;
+    height: 60px;
+    display: flex;
+    flex-direction: row;
+}
+
+.icon-left {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    img {
+        height: 50px;
+        width: 50px;
+    }
+}
+.icon-right {
+    flex: 2;
+    margin-left: 10px;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
