@@ -153,7 +153,7 @@ function init_code_hierarchy_plot(data, year, element_id, numChart, color_functi
     slices
         .on("mouseover", function(d, i) {
             if (d[3]===4) return;
-            set_title(slices, name2range(d[2]), 'subtitle');
+            set_title(slices, name2range(d[2]), 'title');
             var slice = d3.select(this);
             slice.style('cursor', 'pointer');
             d3.select('#'+element_id+'-path'+d[2]).style('stroke', function(d, i) {return color_function(d);});
