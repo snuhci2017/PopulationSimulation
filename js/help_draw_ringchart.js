@@ -21,8 +21,8 @@ function name2range(text) {
     return text;
 }
 function set_title(g, text, _class = 'title') {
-    g.selectAll('text.' + _class).remove();
-
+    //g.selectAll('text.' + _class).remove();
+    g.selectAll('text').remove();
     if (text.toString().endsWith('economic-activity')) {
         var ind = text.indexOf('-activity');
         _set_title(text.substring(0, ind), '-1px', '-0.5em');
@@ -34,7 +34,7 @@ function set_title(g, text, _class = 'title') {
     function _set_title(_text, _ls, _dy) {
         var title = g.append('text')
           .text(_text)
-          .style('font-size', name_fontsize)
+          .style('font-size', (_class === 'title')? title_fontsize:name_fontsize)
           .style('letter-spacing', _ls)
           .attr('dy', _dy)
           .attr('class', _class);

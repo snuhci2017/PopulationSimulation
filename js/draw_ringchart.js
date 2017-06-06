@@ -139,7 +139,7 @@ function init_code_hierarchy_plot(data, year, element_id, numChart, color_functi
     slices.append("svg:title")
               .text(title_function);
 
-    //set_title(slices, year);
+    set_title(slices, year);
 
     var other_slices = null;
     var other_id;
@@ -160,7 +160,7 @@ function init_code_hierarchy_plot(data, year, element_id, numChart, color_functi
         })
         .on("mouseout", function(d, i) {
             if (d[3]===4) return;
-            set_title(slices, '', 'subtitle');
+            set_title(slices, year);
             var slice = d3.select(this);
             slice.style('cursor', 'default');
             d3.select('#'+element_id+'-path'+d[2]).style('stroke', '#ffffff');
