@@ -74,12 +74,13 @@ function load_population(draw = false) {
                     relationData[year-age]['baby'][year] = babynum;
                 }
             });
-
-            for (var year = startyear; year<curryear; year+=5) {
+            update_relation(1915, curryear);
+            for (var year = startyear; year<=curryear; year+=5) {
                 year2data_dic[year] = _year2data(year);
             }
-
+            loadFactor();
             load = true;
+
             if (draw) draw_population();
         });
 
@@ -87,6 +88,7 @@ function load_population(draw = false) {
 }
 
 function set_simulation_data(f1, f2, f3, f4) {
+
     var ages = ['0f', '5f', '10f', '15f', '20f', '25f', '30f', '35f', '40f', '45f', '50f', '55f', '60f', '65f', '70ormore'];
     // set simulated value from curryear+5 to endyear
     var get_birthrate = function(v1, v2, v3, v4){
@@ -101,7 +103,7 @@ function set_simulation_data(f1, f2, f3, f4) {
         console.log(v1,v2,v3,v4,value);
         */
         //value = 46.66 - (v1+v2+v3+v4) * 0.0429;
-        value = 85 - (v1+v2+v3+v4)*0.25;
+        value = 100 - (v1+v2+v3+v4)*0.25;
         return value;
     };
     var simulate = function (year) {
@@ -135,11 +137,31 @@ function set_simulation_data(f1, f2, f3, f4) {
         var prev_factor = populationData[year-5]['total']['0f']/(prev_women+populationData[year]['female'][ages[10]]),
             curr_factor = populationData[year]['total']['0f']/women;
         populationData[year]['childrate'] = populationData[year-5]['childrate']*curr_factor/prev_factor;
-
-        draw_population();
     }
-    for (var year = startyear; year<=endyear; year+=5) {
+    update_relation(curryear+5, endyear);
+    for (var year = curryear+5; year<=endyear; year+=5) {
         year2data_dic[year] = _year2data(year);
+    }
+    draw_population();
+}
+
+function update_relation(sy, ey) {
+    var babydist = {15:0.00087, 20:0.03344, 25:0.19402, 30:0.47128, 35:0.239, 40:0.05277, 45:0.00566};
+    for (var year=sy; year<=ey; year+=5) {
+        if (!(year in relationData))
+            relationData[year] = {'parent':{}, 'baby':{}};
+        var babynum = (year in populationData)? populationData[year]['total']['0f'] : populationData[1925]['total']['0f'];
+        for (var age = 15; age < 45; age += 5){
+            if (!(year-age in relationData)) relationData[year-age] = {'baby':{},'parent':{}};
+            if (!(year in relationData[year-age]['baby'])) {
+                relationData[year]['parent'][year-age] = babynum*babydist[age];
+                relationData[year-age]['baby'][year] = babynum * babydist[age];
+            }
+            if (!(year-age in relationData[year]['parent'])) {
+                relationData[year]['parent'][year-age] = babynum*babydist[age];
+                relationData[year-age]['baby'][year] = babynum*babudist[age];
+            }
+        }
     }
 }
 
@@ -148,7 +170,6 @@ function year2data(year){
 }
 
 function _year2data(year){
-
     var raw_data = populationData[year]['total'];
     var _data = {};
 
@@ -167,7 +188,7 @@ function _year2data(year){
         var _year = age2birthyear(age);
         if (_year <= 1910) _year = 1915;
         var relation = relationData[_year];
-        _data[age] = {'num': Math.floor(raw_data[age]/1000),
+        _data[age] = {'num': raw_data[age]/1000000,
           'ecorate': 0,
           'childrate': 0,
           'parent': {},
@@ -187,7 +208,6 @@ function _year2data(year){
             }
             for (var a = 15; a < 50; a += 5) {
                 var yr = age2birthyear(age) + a; // year of birth of baby
-
                 if (yr in relation['baby']) {
                     babynum += relation['baby'][yr];
                 } else if (yr < 1960) {

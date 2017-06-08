@@ -1,6 +1,7 @@
 var startyear = 1960,
-    endyear = 2080,
-    curryear = 2015;
+    endyear = 2085,
+    curryear = 2015,
+    inityear = 1970;
 
 var title_fontsize = '30pt',
     name_fontsize = '20pt',

@@ -22,9 +22,16 @@ function draw_ringchart(id, year) {
         return description;
         */
         var value = title? d[type] : d[4][type];
-        if (type!=='num') value = value.toFixed(2);
-        else value = value + 'K';
+        value = value.toFixed(2);
+        if (type==='num') value = value + 'M';
         var description = "<span id='value'>" + value + "</span>";
+        if (!title && type!=='num') {
+            if (type === 'ecorate') {
+                description = "<span id='purple'>Purple</span><br>children generation";
+            } else {
+                description = "<span id='blue'>Blue</span><br>parents generation";
+            }
+        }
         return description;
     }
     function color_function(d) {
@@ -82,8 +89,8 @@ function set_display(){
 
         $('.' + keyword).each(function(index) {
             let img = '<img src="' + imgurl[keyword] + '">';
-            let divForRight = '<div class="side-div-size"><p></p>' + img + '</div>';
-            $(this).html('<div class="side-item-title">' + name + '</div>' + divForRight);
+            let divForRight = '<div class="side-div-size"><p></p></div>';
+            $(this).html('<div class="side-item-title">' + img + '</div>' + divForRight);
         });
         /*
         divs = document.getElementsByClassName(keyword);

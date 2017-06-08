@@ -12,16 +12,14 @@
 }
 
 .ring-chart {
+  flex: 1;
   padding: 0;
   height: 100%;
   margin-left: 10px;
   margin-right: 10px;
-  //margin-left: auto;
-  //margin-right: auto;
   margin-top: auto;
   margin-bottom: auto;
-  //margin: 0;
-  //flex: 3;
+  max-width: 400px;
 }
 
 .ring-chart#second {
@@ -35,6 +33,7 @@
   margin-top: auto;
   margin-bottom: auto;
   border: solid black 1px;
+  
   .side-container {
     position: relative;
     height: calc(100% - 30px);
@@ -69,20 +68,30 @@
   }
   .side-item-title {
     flex: 1;
+    width: 0;
     display: flex;
     align-items: center;
     justify-content: center;
-  }
-  .side-div-size {
-    flex: 1;
-    width: 50%;
-    height: 100%;
     img {
       max-height: 80%;
       max-width: 80%;
       width:auto;
       height:auto;
     }
+
+  }
+
+  .curr img {
+      display: none;
+  }
+
+  .side-div-size {
+    flex: 1;
+    width: 0;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     p {
       margin: 0;
     }
@@ -114,4 +123,16 @@
 }
 
 
+span#purple {
+  color: #ff00ff;
+  text-decoration: underline;
+  font-weight: bold;
+  font-size: 18px;
+}
 
+span#blue {
+  color: #0000ff;
+  text-decoration: underline;
+  font-weight: bold;
+  font-size: 18px;
+}

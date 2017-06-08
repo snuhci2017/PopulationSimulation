@@ -42,8 +42,11 @@ const nameForFactor = {
 
 var selectedFactor = MarriageAge;
 const factorList = [MarriageAge, HousingPrice, EducationRate, FemaleEconomicRate];
-var selectedTime = [{time: 1970}];
-var secondSelectedTime = {time: 2005};
+var selectedTime = [{time: inityear}];
+var secondSelectedTime = {time: curryear};
+
+var isFactorEmitting = false;
+var isFactorChanged = false;
 
 function loadFactor() {
     queue()
@@ -132,10 +135,10 @@ function draw_factor(data) {
     const chartHeight = containerHeight - svgMargin.y * 2 - chartMargin.top - chartMargin.bottom;
     svg.style('width', containerWidth - svgMargin.x * 2).style('height', containerHeight - svgMargin.y * 2);
     const maxYear = endyear;
-    const timeRange = {max: maxYear, min: startyear};
+    const timeRange = {max: maxYear - 10, min: startyear};
 
     const xScale = d3.scale.linear()
-                    .domain([startyear - 10, maxYear])
+                    .domain([startyear - 5, maxYear])
                     .range([0, chartWidth])
 
     let yScales = {};
@@ -314,6 +317,43 @@ function draw_factor(data) {
         let timeChangeEvent = new CustomEvent('time_changed', {'detail' : {year: selectedTime[i].time, id: id}});
         document.dispatchEvent(timeChangeEvent);
     }
+
+    function emitFactorEvent() {
+        if (isFactorEmitting) {
+            isFactorChanged = true;
+            return;
+        }
+        _emitFactorEvent();
+    }
+
+    function _emitFactorEvent() {
+        console.log("EmitFactor");
+        isFactorChanged = false;
+        isFactorEmitting = true;
+        let ret = {};
+        factorList.forEach((factorName) => {
+            let values = data[factorName].values;
+            let lastValueItem = values[values.length - 1];
+            let lastYear = lastValueItem.year;
+            let lastValue = lastValueItem.value;
+            let nextYear = maxYear;
+            let nextValue = factorValue[factorName];
+            let a = (nextValue - lastValue) / (nextYear - lastYear);
+            let b = nextValue - a * nextYear;
+            ret[factorName] = {a, b, lastYear};
+        });
+        let factorChangeEvent = new CustomEvent('factor_changed', {'detail': ret});
+        document.dispatchEvent(factorChangeEvent);
+        setTimeout(() => {
+            if (isFactorChanged) {
+                _emitFactorEvent();
+                return;
+            }
+            isFactorEmitting = false;
+        }, 1000);
+    }
+
+    emitFactorEvent();
 
     function modeChangedEvent(numYear) {
         if (numYear === selectedTime.length) return;
