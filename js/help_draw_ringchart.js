@@ -1,5 +1,4 @@
 
-
 function set_translate(x, y) {
     return 'translate(' + x + ',' + y + ')';
 }
@@ -20,6 +19,31 @@ function name2range(text) {
     }
     return text;
 }
+
+function title_function(d) {
+    return d[4]['num'];
+}
+
+function legend_function(type, d, title=false) {
+    var value = title? d[type] : d[4][type];
+    value = value.toFixed(2);
+    if (type==='num') value = value + 'M';
+    var description = "<span id='value'>" + value + "</span>";
+    if (!title && type!=='num') {
+        if (type === 'ecorate') {
+            description = "<span id='purple'>Purple</span><br>children generation";
+        } else {
+            description = "<span id='blue'>Blue</span><br>parents generation";
+        }
+    }
+    return description;
+}
+
+function color_function(d) {
+    return color_dic[d[2]];
+}
+
+
 function set_title(g, text, _class = 'title') {
     g.selectAll('text.title').remove();
     g.selectAll('text.subtitle').remove();
@@ -70,54 +94,3 @@ function get_level(d,ref){
         return d[3];
     }
 }
-function rebaseTween(new_ref) {
-    return function(d) {
-        var level = d3.interpolate(get_level(d,ref),get_level(d,new_ref));
-        var start_deg = d3.interpolate(get_start_angle(d,ref),get_start_angle(d,new_ref));
-        var stop_deg = d3.interpolate(get_stop_angle(d,ref),get_stop_angle(d,new_ref));
-        var opacity = d3.interpolate(100,0);
-        return function(t){ return arc([start_deg(t),stop_deg(t),d[2],level(t)]);  }
-    }
-}
-
-var animating = false;
-
-function animate(d) {
-    if (animating) return;
-    animating = true;
-    var revert = false;
-    var new_ref;
-    if (d == ref && last_refs.length > 0) {
-        revert = true;
-        last_ref = last_refs.pop();
-    }
-    if (revert) {
-        d = last_ref;
-        new_ref = ref;
-        svg.selectAll(".form")
-            .filter(function (b){
-                return (b[0]>=last_ref[0] && b[1]<=last_ref[1] && b[3]>=last_ref[3]);
-            })
-            .transition().duration(1000).style("opacity","1").attr("pointer-events","all");
-    } else {
-        new_ref = d;
-        svg.selectAll(".form")
-        .filter(function (b) {return (b[0] < d[0] || b[1] > d[1] || b[3] < d[3]);})
-        .transition().duration(1000).style("opacity","0").attr("pointer-events","none");
-    }
-    svg.selectAll(".form")
-       .filter(function(b){return (b[0]>=new_ref[0] && b[1]<=new_ref[1] && b[3]>=new_ref[3]);})
-       .transition().duration(1000).attrTween("d",rebaseTween(d));
-    setTimeout(function(){
-          animating = false;
-          if (! revert) {
-              last_refs.push(ref);
-              ref = d;
-          } else {
-              ref = d;
-          }}, 1000);
-}
-
-
-
-

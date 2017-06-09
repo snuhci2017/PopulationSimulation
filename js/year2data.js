@@ -103,7 +103,7 @@ function set_simulation_data(f1, f2, f3, f4) {
         console.log(v1,v2,v3,v4,value);
         */
         //value = 46.66 - (v1+v2+v3+v4) * 0.0429;
-        value = 100 - (v1+v2+v3+v4)*0.25;
+        value = 110 - (v1+v2+v3+v4)*0.3;
         return value;
     };
     var simulate = function (year) {

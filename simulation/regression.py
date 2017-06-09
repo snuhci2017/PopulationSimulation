@@ -28,7 +28,7 @@ def main():
         y.append(1000*float(d[y_labels[0]])/float(d[y_labels[1]]))
         #print (xi[-1], y[-1])
         #print (46.66 - 0.0429*xi[-1][0], y[-1])
-        print (100 - 0.25*xi[-1][0], y[-1])
+        print (110 - 0.3*xi[-1][0], y[-1])
     linregress(xi, y)
 
 

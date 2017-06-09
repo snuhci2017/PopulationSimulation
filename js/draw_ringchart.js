@@ -1,8 +1,7 @@
 var slices_dic = {'first': null, 'second': null};
 var clicked = null;
 
-function init_code_hierarchy_plot(data, year, element_id, numChart, color_function, title_function,legend_function){
-
+function draw_ringchart(element_id, year){
     var plot = document.getElementById(element_id);
 
     while (plot.hasChildNodes()){
@@ -26,7 +25,7 @@ function init_code_hierarchy_plot(data, year, element_id, numChart, color_functi
         {},
         {},
         {},
-        data
+        year2data(year)
     ];
     function sum(l, level) {
         var s = {};
@@ -143,7 +142,6 @@ function init_code_hierarchy_plot(data, year, element_id, numChart, color_functi
 
     var other_slices = null;
     var other_id;
-
     slices_dic[element_id] = [slices, data_slices];
     if(numChart === 2) {
         other_id = (element_id === 'first')? 'second' : 'first';
@@ -203,6 +201,9 @@ function init_code_hierarchy_plot(data, year, element_id, numChart, color_functi
     _display_legend("." + element_id + ".tot.number", legend_function('num', data_dic[0][''], true));
     _display_legend("." + element_id + ".tot.work", legend_function('ecorate', data_dic[0][''], true));
     _display_legend("." + element_id + ".tot.children", legend_function('childrate', data_dic[0][''], true));
+    _display_legend(".curr.number", "", false);
+    _display_legend(".curr.work", "", false);
+    _display_legend(".curr.children", "", false);
 
     var side_id = (element_id === 'first')? 'left': 'right';
     d3.select("#side-" + side_id + ' .tot.side-title-span').text(year);
