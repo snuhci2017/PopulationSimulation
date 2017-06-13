@@ -257,6 +257,7 @@ function draw_factor(data) {
         handleContainer.selectAll('.factor-label').data(factorList)
             .call(setFactorLabel);
 
+        updateTimeline();
         emitFactorEvent();
     }
 
@@ -282,9 +283,8 @@ function draw_factor(data) {
                     return 0.2;
                 }
             });
+        updateTimeline();
     }
-
-    updateFocused();
 
     let dragTimeline = d3.behavior.drag()
         .origin((d) => ({x: xScale(d.time), y: 0}))
@@ -305,6 +305,7 @@ function draw_factor(data) {
             .attr('transform', d3.transform()
                 .translate(xScale(value), 0)
             );
+        d3.select(this).select('.factor-value').call(setFactorValue);
         emitTimelineEvent(i);
     }
 
@@ -351,7 +352,7 @@ function draw_factor(data) {
                 return;
             }
             isFactorEmitting = false;
-        }, 1000);
+        }, 1000 / 15);
     }
 
     emitFactorEvent();
@@ -376,6 +377,35 @@ function draw_factor(data) {
     }
     factorEvents.modeChangedEvent = modeChangedEvent;
 
+    function getFactor(time,name) {
+        let factorData = lineData.filter((d) => {
+            return d.id === name;
+        });
+        if (factorData.length !== 1) {
+            return 0;
+        }
+        factorData = factorData[0].values;
+        let upperBound = factorData.filter((d) => {
+            return d.year >= time;
+        });
+        let lowerBound = factorData.filter((d) => {
+            return d.year <= time;
+        });
+        if (lowerBound.length === 0) return 0;
+        upperBound = upperBound[0];
+        lowerBound = lowerBound[lowerBound.length - 1];
+        if (upperBound.year === lowerBound.year) {
+            return upperBound.value;
+        }
+        let t =  (time - lowerBound.year) / (upperBound.year - lowerBound.year);
+        let ret = Lerp(lowerBound.value, upperBound.value, t);
+        return ret;
+    }
+
+    function Lerp(from,to,t) {
+        return from * (1-t) + to * t;
+    }
+
     function updateTimeline() {
         let timeLine = g.selectAll('.timeline')
                         .data(selectedTime);
@@ -384,6 +414,8 @@ function draw_factor(data) {
             .attr('transform', d3.transform()
                 .translate((d) => [xScale(d.time),0])
             );
+
+        timeLine.select('.factor-value').call(setFactorValue);
 
         let timeLineEnter = timeLine
                                 .enter()
@@ -398,6 +430,8 @@ function draw_factor(data) {
                 .attr('x1', 0).attr('x2', 0).attr('y1', -10).attr('y2',chartHeight);
         timeLineEnter.append('rect')
                 .attr('width', 20).attr('height', chartHeight+10).attr('x', -10).attr('y', -10);
+        timeLineEnter.append('text')
+                .call(setFactorValue);
 
         timeLine.exit()
             .transition()
@@ -405,8 +439,20 @@ function draw_factor(data) {
                 .remove();
     }
 
+    function setFactorValue(selection) {
+        selection.attr('class', 'factor-value')
+                .text((d) => {
+                    return getFactor(d.time, selectedFactor).toFixed(2);
+                })
+                .attr('transform', d3.transform().translate((d) => {
+                    return [-5, yScales[selectedFactor](getFactor(d.time, selectedFactor))];
+                }))
+                .attr('text-anchor', 'end');
+    }
+
     updateTimeline();
 
+    updateFocused();
 
 }
 
