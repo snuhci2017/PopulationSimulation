@@ -40,6 +40,13 @@ const nameForFactor = {
     [FemaleEconomicRate] : '여성 경제 참여율'
 }
 
+const unitForFactor = {
+    [HousingPrice] : '2016.05 : 100%',
+    [MarriageAge] : '',
+    [EducationRate] : '[%]',
+    [FemaleEconomicRate] : '[%]'
+}
+
 var selectedFactor = MarriageAge;
 const factorList = [MarriageAge, HousingPrice, EducationRate, FemaleEconomicRate];
 var selectedTime = [{time: inityear}];
@@ -176,6 +183,14 @@ function draw_factor(data) {
     g.append("g")
         .attr("class", "axis axis-y")
         .call(d3.svg.axis().scale(yScales[selectedFactor]).orient('left').ticks(5));
+    g.append('text')
+        .text('[%]')
+        .attr('class', 'axis-y-unit')
+        .attr('text-anchor', 'middle')
+        .attr('transform', d3.transform()
+            .translate([0,-10])
+        )
+        .attr('font-size', '12px');
 
     let lineChart = g.append('g').attr('class', 'line-chart');
 
@@ -200,6 +215,19 @@ function draw_factor(data) {
             .attr('d', (d) => lines[d.id](d.values))
             .style('stroke', (d) => colorScale(d.id));
 
+    //MARK: future area
+    let futureAreaWidth = xScale(maxYear) - xScale(2017);
+    let futureArea = g.append('g')
+        .attr('class', 'future-area')
+        .attr('transform', d3.transform().translate([xScale(2017), chartHeight]));
+    futureArea.append('rect')
+        .attr('height', 35).attr('width', xScale(maxYear) - xScale(2017) + 10).attr('y', -10);
+    futureArea.append('text')
+        .attr('class', 'future-area-desc')
+        .text('시뮬레이션 영역')
+        .attr('transform', d3.transform().translate([futureAreaWidth + 20,10]));
+
+
     // MARK: handle container
     let handleContainer = g.append('g');
 
@@ -219,15 +247,19 @@ function draw_factor(data) {
             .text((d) => nameForFactor[d]);
     }
 
-    handleContainer.selectAll('.factor-handle').data(factorList)
-        .enter()
-        .append('circle')
+    var FactorHandleEnter = handleContainer.selectAll('.factor-handle').data(factorList)
+        .enter();
+
+    FactorHandleEnter.append('circle')
         .on('mousedown',(d) => {
             selectedFactor = d;
             updateFocused();
         })
         .call(setFactorHandle)
         .call(dragFactor);
+    FactorHandleEnter.append('text')
+        .attr('class', 'factor-handle-value')
+        .call(setFactorHandleValue);
 
     function setFactorHandle(selection) {
         selection
@@ -238,6 +270,20 @@ function draw_factor(data) {
             .attr('r', 10)
             .attr('z-index', 1)
             .attr('fill', (d) => colorScale(d))
+    }
+
+    function setFactorHandleValue(selection) {
+        selection
+            .attr('transform', d3.transform()
+                .translate((d) => [xScale(maxYear) - 15, yScales[d](factorValue[d])])
+            )
+            .attr('text-anchor', 'end')
+            .text((d) => factorValue[d].toFixed(2))
+            .attr('display', (d) => (d === selectedFactor ? 'auto' : 'none'))
+    }
+
+    function updateFactorHandleValue() {
+        d3.selectAll('.factor-handle-value').call(setFactorHandleValue);
     }
 
     function factorDragged(d) {
@@ -257,6 +303,8 @@ function draw_factor(data) {
         handleContainer.selectAll('.factor-label').data(factorList)
             .call(setFactorLabel);
 
+        updateTimeline();
+        updateFactorHandleValue();
         emitFactorEvent();
     }
 
@@ -265,7 +313,9 @@ function draw_factor(data) {
             g.select('.axis-y').attr('opacity', 0);
         } else {
             g.select('.axis-y').call(d3.svg.axis().scale(yScales[selectedFactor]).orient('left').ticks(5)).attr('opacity',1);
+            g.select('.axis-y-unit').text(unitForFactor[selectedFactor]);
         }
+
         const tmpLineChart = lineChart.selectAll('.factor-line').data(lineData).transition()
             .attr('opacity', (d) => {
                 if (d.id === selectedFactor) {
@@ -282,9 +332,9 @@ function draw_factor(data) {
                     return 0.2;
                 }
             });
+        updateFactorHandleValue();
+        updateTimeline();
     }
-
-    updateFocused();
 
     let dragTimeline = d3.behavior.drag()
         .origin((d) => ({x: xScale(d.time), y: 0}))
@@ -305,6 +355,7 @@ function draw_factor(data) {
             .attr('transform', d3.transform()
                 .translate(xScale(value), 0)
             );
+        d3.select(this).select('.factor-value').call(setFactorValue);
         emitTimelineEvent(i);
     }
 
@@ -351,7 +402,7 @@ function draw_factor(data) {
                 return;
             }
             isFactorEmitting = false;
-        }, 1000);
+        }, 1000 / 15);
     }
 
     emitFactorEvent();
@@ -376,6 +427,35 @@ function draw_factor(data) {
     }
     factorEvents.modeChangedEvent = modeChangedEvent;
 
+    function getFactor(time,name) {
+        let factorData = lineData.filter((d) => {
+            return d.id === name;
+        });
+        if (factorData.length !== 1) {
+            return 0;
+        }
+        factorData = factorData[0].values;
+        let upperBound = factorData.filter((d) => {
+            return d.year >= time;
+        });
+        let lowerBound = factorData.filter((d) => {
+            return d.year <= time;
+        });
+        if (lowerBound.length === 0) return 0;
+        upperBound = upperBound[0];
+        lowerBound = lowerBound[lowerBound.length - 1];
+        if (upperBound.year === lowerBound.year) {
+            return upperBound.value;
+        }
+        let t =  (time - lowerBound.year) / (upperBound.year - lowerBound.year);
+        let ret = Lerp(lowerBound.value, upperBound.value, t);
+        return ret;
+    }
+
+    function Lerp(from,to,t) {
+        return from * (1-t) + to * t;
+    }
+
     function updateTimeline() {
         let timeLine = g.selectAll('.timeline')
                         .data(selectedTime);
@@ -384,6 +464,8 @@ function draw_factor(data) {
             .attr('transform', d3.transform()
                 .translate((d) => [xScale(d.time),0])
             );
+
+        timeLine.select('.factor-value').call(setFactorValue);
 
         let timeLineEnter = timeLine
                                 .enter()
@@ -398,6 +480,8 @@ function draw_factor(data) {
                 .attr('x1', 0).attr('x2', 0).attr('y1', -10).attr('y2',chartHeight);
         timeLineEnter.append('rect')
                 .attr('width', 20).attr('height', chartHeight+10).attr('x', -10).attr('y', -10);
+        timeLineEnter.append('text')
+                .call(setFactorValue);
 
         timeLine.exit()
             .transition()
@@ -405,8 +489,20 @@ function draw_factor(data) {
                 .remove();
     }
 
+    function setFactorValue(selection) {
+        selection.attr('class', 'factor-value')
+                .text((d) => {
+                    return getFactor(d.time, selectedFactor).toFixed(2);
+                })
+                .attr('transform', d3.transform().translate((d) => {
+                    return [-5, yScales[selectedFactor](getFactor(d.time, selectedFactor))];
+                }))
+                .attr('text-anchor', 'end');
+    }
+
     updateTimeline();
 
+    updateFocused();
 
 }
 
