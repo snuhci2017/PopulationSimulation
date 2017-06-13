@@ -27,9 +27,9 @@ function title_function(d) {
 function legend_function(type, d, title=false) {
     var value = title? d[type] : d[4][type];
     value = value.toFixed(2);
-    if (type==='num') value = Math.floor(value*100) + 'M'; // TODO to Korean ( M - > Man )
-    else if (title && type==='erorate') value = value + '%';
-    else if (title) value = value + ''; // TODO to Korean (myeong)
+    if (type==='num') value = Math.floor(value*100) + '만명';
+    else if (title && type==='ecorate') value = value + '%';
+    else if (title) value = value + '명';
     var description = "<span id='value'>" + value + "</span>";
     if (!title && type!=='num') {
         var data, start, end, range = "";
@@ -58,8 +58,7 @@ function legend_function(type, d, title=false) {
                 end = get_end(data);
                 range = "<br />(" + start + " ~ " + end + ")";
             }
-            //TODO to Korean
-            description = "<span id='purple'>Purple</span><br>children generation" + range;
+            description = "<span id='purple'>보라색</span><br>자녀 세대" + range;
         } else {
             data = Object.keys(d[4]['parent']);
             if (data.length > 0) {
@@ -67,8 +66,7 @@ function legend_function(type, d, title=false) {
                 end = get_end(data);
                 range = "<br />(" + start + " ~ " + end + ")";
             }
-            //TODO to Korean
-            description = "<span id='blue'>Blue</span><br>parents generation" + range;
+            description = "<span id='blue'>파란색</span><br>부모님 세대" + range;
         }
     }
     return description;
