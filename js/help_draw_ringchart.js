@@ -27,13 +27,48 @@ function title_function(d) {
 function legend_function(type, d, title=false) {
     var value = title? d[type] : d[4][type];
     value = value.toFixed(2);
-    if (type==='num') value = value + 'M';
+    if (type==='num') value = Math.floor(value*100) + 'M'; // TODO to Korean ( M - > Man )
+    else if (title && type==='erorate') value = value + '%';
+    else if (title) value = value + ''; // TODO to Korean (myeong)
     var description = "<span id='value'>" + value + "</span>";
     if (!title && type!=='num') {
+        var data, start, end, range = "";
+        function get_start(ages) {
+            var val, len, min = 9999;
+            for (var i=0; i<ages.length; i++) {
+                len = (ages[i]==='70ormore')? 2 : ages[i].length-1;
+                val = parseInt(ages[i].substring(0, len));
+                if (val < min) min = val;
+            }
+            return min;
+        }
+        function get_end(ages) {
+            var val, max = -9999;
+            for (var i=0; i<ages.length; i++) {
+                if (ages[i] === '70ormore') return '';
+                val = parseInt(ages[i].substring(0, ages[i].length-1));
+                if (val > max) max = val + 5;
+            }
+            return max.toString();
+        }
         if (type === 'ecorate') {
-            description = "<span id='purple'>Purple</span><br>children generation";
+            data = Object.keys(d[4]['baby']);
+            if (data.length > 0) {
+                start = get_start(data);
+                end = get_end(data);
+                range = "<br />(" + start + " ~ " + end + ")";
+            }
+            //TODO to Korean
+            description = "<span id='purple'>Purple</span><br>children generation" + range;
         } else {
-            description = "<span id='blue'>Blue</span><br>parents generation";
+            data = Object.keys(d[4]['parent']);
+            if (data.length > 0) {
+                start = get_start(data);
+                end = get_end(data);
+                range = "<br />(" + start + " ~ " + end + ")";
+            }
+            //TODO to Korean
+            description = "<span id='blue'>Blue</span><br>parents generation" + range;
         }
     }
     return description;
