@@ -316,6 +316,15 @@ function draw_factor(data) {
             g.select('.axis-y-unit').text(unitForFactor[selectedFactor]);
         }
 
+        factorList.forEach((name) => {
+            let $p = $('#factor-nav-container p[factorId=\'' + name + '\']');
+            if (name === selectedFactor) {
+                $p.show();
+            } else {
+                $p.hide();
+            }
+        });
+
         const tmpLineChart = lineChart.selectAll('.factor-line').data(lineData).transition()
             .attr('opacity', (d) => {
                 if (d.id === selectedFactor) {
@@ -432,7 +441,7 @@ function draw_factor(data) {
             return d.id === name;
         });
         if (factorData.length !== 1) {
-            return 0;
+            return null;
         }
         factorData = factorData[0].values;
         let upperBound = factorData.filter((d) => {
@@ -441,7 +450,7 @@ function draw_factor(data) {
         let lowerBound = factorData.filter((d) => {
             return d.year <= time;
         });
-        if (lowerBound.length === 0) return 0;
+        if (lowerBound.length === 0) return null;
         upperBound = upperBound[0];
         lowerBound = lowerBound[lowerBound.length - 1];
         if (upperBound.year === lowerBound.year) {
@@ -492,10 +501,17 @@ function draw_factor(data) {
     function setFactorValue(selection) {
         selection.attr('class', 'factor-value')
                 .text((d) => {
-                    return getFactor(d.time, selectedFactor).toFixed(2);
+                    let factor = getFactor(d.time, selectedFactor);
+                    if (factor === null) {
+                        return '';
+                    } else {
+                        return factor.toFixed(2);
+                    }
                 })
                 .attr('transform', d3.transform().translate((d) => {
-                    return [-5, yScales[selectedFactor](getFactor(d.time, selectedFactor))];
+                    let factor = getFactor(d.time, selectedFactor);
+                    if (factor === null) return [0,0];
+                    return [-5, yScales[selectedFactor](factor)];
                 }))
                 .attr('text-anchor', 'end');
     }
