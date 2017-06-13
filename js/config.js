@@ -67,14 +67,14 @@ var reds = ['#fc9272', '#fb6a4a', '#ef3b2c', '#cb181d', '#99000d'],
     deeppurples = ['#bcbddc', '#9e9ac8', '#807dba', '#6a51a3', '#4a1486'],
     purples = ['', '#CE93D8', '#AB47BC', '#8E24AA', '#6A1B9A'];
 
-var spred = '#ef5350',
+var spred = '#e38987',
     darkteel = '#26a69a',
     teel = '#4db6ac',
-    customMix = '#57a0a2',
+    customMix = '#67b6c5',
     darkcyan = '#0097a7',
     cyan = '#00acc1',
     lightcyan = '#80deea',
-    sppurple = '#7e57c2';
+    sppurple = '#c17fcc';
 
 // categorical colors of 4
 var color40 = '#e41a1c',

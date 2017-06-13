@@ -68,6 +68,12 @@ function legend_function(type, d, title=false) {
             }
             description = "<span id='blue'>파란색</span><br>부모님 세대" + range;
         }
+    } else if (type === 'num') {
+        description = "인구수<br />" + description;
+    } else if (type === 'ecorate'){
+        description = "고령화지수<br />" + description;
+    } else {
+        description = "가족 당 아이수<br />" + description;
     }
     return description;
 }
