@@ -32,6 +32,14 @@
     dominant-baseline: middle;
 }
 
+.factor-handle {
+    cursor: row-resize;
+}
+
+.factor-handle-value {
+    dominant-baseline: middle;
+}
+
 .timeline {
     shape-rendering: crispEdges;
     line {

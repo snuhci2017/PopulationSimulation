@@ -234,15 +234,19 @@ function draw_factor(data) {
             .text((d) => nameForFactor[d]);
     }
 
-    handleContainer.selectAll('.factor-handle').data(factorList)
-        .enter()
-        .append('circle')
+    var FactorHandleEnter = handleContainer.selectAll('.factor-handle').data(factorList)
+        .enter();
+
+    FactorHandleEnter.append('circle')
         .on('mousedown',(d) => {
             selectedFactor = d;
             updateFocused();
         })
         .call(setFactorHandle)
         .call(dragFactor);
+    FactorHandleEnter.append('text')
+        .attr('class', 'factor-handle-value')
+        .call(setFactorHandleValue);
 
     function setFactorHandle(selection) {
         selection
@@ -253,6 +257,20 @@ function draw_factor(data) {
             .attr('r', 10)
             .attr('z-index', 1)
             .attr('fill', (d) => colorScale(d))
+    }
+
+    function setFactorHandleValue(selection) {
+        selection
+            .attr('transform', d3.transform()
+                .translate((d) => [xScale(maxYear) - 15, yScales[d](factorValue[d])])
+            )
+            .attr('text-anchor', 'end')
+            .text((d) => factorValue[d].toFixed(2))
+            .attr('display', (d) => (d === selectedFactor ? 'auto' : 'none'))
+    }
+
+    function updateFactorHandleValue() {
+        d3.selectAll('.factor-handle-value').call(setFactorHandleValue);
     }
 
     function factorDragged(d) {
@@ -273,6 +291,7 @@ function draw_factor(data) {
             .call(setFactorLabel);
 
         updateTimeline();
+        updateFactorHandleValue();
         emitFactorEvent();
     }
 
@@ -300,6 +319,7 @@ function draw_factor(data) {
                     return 0.2;
                 }
             });
+        updateFactorHandleValue();
         updateTimeline();
     }
 
