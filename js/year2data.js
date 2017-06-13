@@ -103,7 +103,7 @@ function set_simulation_data(f1, f2, f3, f4) {
         console.log(v1,v2,v3,v4,value);
         */
         //value = 46.66 - (v1+v2+v3+v4) * 0.0429;
-        value = 100 - (v1+v2+v3+v4)*0.25;
+        value = 113 - (v1+v2+v3+v4)*0.4;
         return value;
     };
     var simulate = function (year) {
@@ -132,11 +132,14 @@ function set_simulation_data(f1, f2, f3, f4) {
             prev_women += populationData[year]['female'][ages[i]];
         }
         women = prev_women + populationData[year]['female'][ages[3]];
+        prev_women += populationData[year]['female'][ages[10]];
         babynum = br * women / 1000;
         populationData[year]['total']['0f'] = babynum;
-        var prev_factor = populationData[year-5]['total']['0f']/(prev_women+populationData[year]['female'][ages[10]]),
+
+        var prev_factor = populationData[year-5]['total']['0f']/prev_women,
             curr_factor = populationData[year]['total']['0f']/women;
         populationData[year]['childrate'] = populationData[year-5]['childrate']*curr_factor/prev_factor;
+
     }
     update_relation(curryear+5, endyear);
     for (var year = curryear+5; year<=endyear; year+=5) {
@@ -195,17 +198,17 @@ function _year2data(year){
           'baby': {}
         };
         var babynum = 0;
-        if (relation!==undefined) {
-            for (by in relation['parent']){
-                var _a = birthyear2age(by);
-                if (_a === '') continue;
-                _data[age]['parent'][_a] = relation['parent'][by];
-            }
-            for (by in relation['baby']){
-                var _a = birthyear2age(by);
-                if (_a === '') continue;
-                _data[age]['baby'][_a] = relation['baby'][by];
-            }
+        for (by in relation['parent']){
+            var _a = birthyear2age(by);
+            if (_a === '') continue;
+            _data[age]['parent'][_a] = relation['parent'][by];
+        }
+        for (by in relation['baby']){
+            var _a = birthyear2age(by);
+            if (_a === '') continue;
+            _data[age]['baby'][_a] = relation['baby'][by];
+        }
+        if (year <= curryear) {
             for (var a = 15; a < 50; a += 5) {
                 var yr = age2birthyear(age) + a; // year of birth of baby
                 if (yr in relation['baby']) {
@@ -216,23 +219,26 @@ function _year2data(year){
             }
             var female = populationData[year]['female'][age];
             _data[age]['childrate'] = babynum/female;
-            populationData[year]['childrate'] = babynum/female;
         } else {
             _data[age]['childrate'] = populationData[year]['childrate'];
         }
     }
 
     var active = 0, nonactive = 0;
-    var old_ages = ['65f', '70ormore'], young_ages = ['0f', '5f', '10f'];
+    var old_ages = ['65f', '70ormore'], young_ages = ['0f', '5f', '10f'], sum = 0, sum_of_childrate = 0;
     for (age in _data) {
         if (old_ages.indexOf(age) > -1)
             nonactive += _data[age]['num'];
         else if (young_ages.indexOf(age) == -1)
             active += _data[age]['num'];
+        sum_of_childrate += _data[age]['num'] * _data[age]['childrate'];
+        sum += _data[age]['num'];
     }
     for (age in _data) {
         _data[age]['ecorate'] = nonactive * 100 / active;
+        _data[age]['childrate'] = sum_of_childrate/sum;
     }
+    populationData[year]['childrate'] = sum_of_childrate/sum;
 
     return _data;
 }

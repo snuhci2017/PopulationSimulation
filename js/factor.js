@@ -165,6 +165,7 @@ function draw_factor(data) {
         .scale(xScale)
         .orient('bottom')
         .tickSize(6)
+        .ticks((endyear - startyear) / 10 + 1)
         .tickFormat(d3.format('d'));
 
     g.append('g')
