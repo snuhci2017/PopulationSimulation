@@ -215,6 +215,19 @@ function draw_factor(data) {
             .attr('d', (d) => lines[d.id](d.values))
             .style('stroke', (d) => colorScale(d.id));
 
+    //MARK: future area
+    let futureAreaWidth = xScale(maxYear) - xScale(2017);
+    let futureArea = g.append('g')
+        .attr('class', 'future-area')
+        .attr('transform', d3.transform().translate([xScale(2017), chartHeight]));
+    futureArea.append('rect')
+        .attr('height', 35).attr('width', xScale(maxYear) - xScale(2017) + 10).attr('y', -10);
+    futureArea.append('text')
+        .attr('class', 'future-area-desc')
+        .text('시뮬레이션 영역')
+        .attr('transform', d3.transform().translate([futureAreaWidth + 20,10]));
+
+
     // MARK: handle container
     let handleContainer = g.append('g');
 
