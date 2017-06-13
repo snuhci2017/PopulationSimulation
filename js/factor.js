@@ -40,6 +40,13 @@ const nameForFactor = {
     [FemaleEconomicRate] : '여성 경제 참여율'
 }
 
+const unitForFactor = {
+    [HousingPrice] : '2016.05 : 100%',
+    [MarriageAge] : '',
+    [EducationRate] : '[%]',
+    [FemaleEconomicRate] : '[%]'
+}
+
 var selectedFactor = MarriageAge;
 const factorList = [MarriageAge, HousingPrice, EducationRate, FemaleEconomicRate];
 var selectedTime = [{time: inityear}];
@@ -176,6 +183,14 @@ function draw_factor(data) {
     g.append("g")
         .attr("class", "axis axis-y")
         .call(d3.svg.axis().scale(yScales[selectedFactor]).orient('left').ticks(5));
+    g.append('text')
+        .text('[%]')
+        .attr('class', 'axis-y-unit')
+        .attr('text-anchor', 'middle')
+        .attr('transform', d3.transform()
+            .translate([0,-10])
+        )
+        .attr('font-size', '12px');
 
     let lineChart = g.append('g').attr('class', 'line-chart');
 
@@ -266,7 +281,9 @@ function draw_factor(data) {
             g.select('.axis-y').attr('opacity', 0);
         } else {
             g.select('.axis-y').call(d3.svg.axis().scale(yScales[selectedFactor]).orient('left').ticks(5)).attr('opacity',1);
+            g.select('.axis-y-unit').text(unitForFactor[selectedFactor]);
         }
+
         const tmpLineChart = lineChart.selectAll('.factor-line').data(lineData).transition()
             .attr('opacity', (d) => {
                 if (d.id === selectedFactor) {
