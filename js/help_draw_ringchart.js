@@ -27,14 +27,53 @@ function title_function(d) {
 function legend_function(type, d, title=false) {
     var value = title? d[type] : d[4][type];
     value = value.toFixed(2);
-    if (type==='num') value = value + 'M';
+    if (type==='num') value = Math.floor(value*100) + '만명';
+    else if (title && type==='ecorate') value = value + '%';
+    else if (title) value = value + '명';
     var description = "<span id='value'>" + value + "</span>";
     if (!title && type!=='num') {
-        if (type === 'ecorate') {
-            description = "<span id='purple'>Purple</span><br>children generation";
-        } else {
-            description = "<span id='blue'>Blue</span><br>parents generation";
+        var data, start, end, range = "";
+        function get_start(ages) {
+            var val, len, min = 9999;
+            for (var i=0; i<ages.length; i++) {
+                len = (ages[i]==='70ormore')? 2 : ages[i].length-1;
+                val = parseInt(ages[i].substring(0, len));
+                if (val < min) min = val;
+            }
+            return min;
         }
+        function get_end(ages) {
+            var val, max = -9999;
+            for (var i=0; i<ages.length; i++) {
+                if (ages[i] === '70ormore') return '';
+                val = parseInt(ages[i].substring(0, ages[i].length-1));
+                if (val > max) max = val + 5;
+            }
+            return max.toString();
+        }
+        if (type === 'ecorate') {
+            data = Object.keys(d[4]['baby']);
+            if (data.length > 0) {
+                start = get_start(data);
+                end = get_end(data);
+                range = "<br />(" + start + " ~ " + end + ")";
+            }
+            description = "<span id='purple'>보라색</span><br>자녀 세대" + range;
+        } else {
+            data = Object.keys(d[4]['parent']);
+            if (data.length > 0) {
+                start = get_start(data);
+                end = get_end(data);
+                range = "<br />(" + start + " ~ " + end + ")";
+            }
+            description = "<span id='blue'>파란색</span><br>부모님 세대" + range;
+        }
+    } else if (type === 'num') {
+        description = "인구수<br />" + description;
+    } else if (type === 'ecorate'){
+        description = "고령화지수<br />" + description;
+    } else {
+        description = "가족 당 아이수<br />" + description;
     }
     return description;
 }
