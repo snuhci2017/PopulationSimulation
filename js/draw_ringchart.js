@@ -135,9 +135,6 @@ function draw_ringchart(element_id, year){
           .style('font-size', valuetoken_fontsize)
           .style('text-anchor', 'middle');
 
-    slices.append("svg:title")
-              .text(title_function);
-
     set_title(slices, year);
 
     var other_slices = null;
