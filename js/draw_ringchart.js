@@ -135,7 +135,7 @@ function draw_ringchart(element_id, year){
           .style('font-size', valuetoken_fontsize)
           .style('text-anchor', 'middle');
 
-    set_title(slices, year);
+    set_title(g, year);
 
     var other_slices = null;
     var other_id;
@@ -148,14 +148,14 @@ function draw_ringchart(element_id, year){
     slices
         .on("mouseover", function(d, i) {
             if (d[3]===4) return;
-            set_title(slices, name2range(d[2]), 'subtitle');
+            set_title(g, name2range(d[2]), 'subtitle');
             var slice = d3.select(this);
             slice.style('cursor', 'pointer');
             d3.select('#'+element_id+'-path'+d[2]).style('stroke', function(d, i) {return color_function(d);});
         })
         .on("mouseout", function(d, i) {
             if (d[3]===4) return;
-            set_title(slices, year);
+            set_title(g, year);
             var slice = d3.select(this);
             slice.style('cursor', 'default');
             d3.select('#'+element_id+'-path'+d[2]).style('stroke', '#ffffff');
