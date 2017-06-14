@@ -56,7 +56,7 @@ var isFactorEmitting = false;
 var isFactorChanged = false;
 
 function loadFactor() {
-    queue()
+    d3.queue()
         .defer(d3.csv, "data/economic female rate.csv")
         .defer(d3.csv, "data/education rate.csv")
         .defer(d3.csv, "data/factor_housing_price.csv")
