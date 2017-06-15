@@ -56,6 +56,7 @@ var isFactorEmitting = false;
 var isFactorChanged = false;
 
 function loadFactor() {
+    // Factor data importing
     d3.queue()
         .defer(d3.csv, "data/economic female rate.csv")
         .defer(d3.csv, "data/education rate.csv")
@@ -90,6 +91,7 @@ function loadFactor() {
 }
 
 function doubleClick() {
+    // code for supporting double click (not used right now)
     var event = d3.dispatch('click', 'dblclick');
     function cc(selection) {
         var down = null,
@@ -127,6 +129,7 @@ function doubleClick() {
 }
 
 function draw_factor(data) {
+    // draw the factor
     const svg = d3.select('svg#factor-graph');
     svg.html('');
     const charts = svg.append('g');
@@ -228,7 +231,7 @@ function draw_factor(data) {
         .attr('transform', d3.transform().translate([futureAreaWidth + 20,10]));
 
 
-    // MARK: handle container
+    // MARK: Factor Handle
     let handleContainer = g.append('g');
 
     handleContainer.selectAll('.factor-label').data(factorList)
@@ -309,6 +312,7 @@ function draw_factor(data) {
     }
 
     function updateFocused() {
+        // update the focused factor graph
         if (selectedFactor === null) {
             g.select('.axis-y').attr('opacity', 0);
         } else {
@@ -345,6 +349,51 @@ function draw_factor(data) {
         updateTimeline();
     }
 
+    function emitFactorEvent() {
+        // emit factor changed event
+        if (isFactorEmitting) {
+            // emit actual event should happen only in 15 fps
+            isFactorChanged = true;
+            return;
+        }
+        _emitFactorEvent();
+    }
+
+    function _emitFactorEvent() {
+        isFactorChanged = false;
+        isFactorEmitting = true;
+
+        // actual emit event
+        let ret = {};
+        factorList.forEach((factorName) => {
+            let values = data[factorName].values;
+            let lastValueItem = values[values.length - 1];
+            let lastYear = lastValueItem.year;
+            let lastValue = lastValueItem.value;
+            let nextYear = maxYear;
+            let nextValue = factorValue[factorName];
+            let a = (nextValue - lastValue) / (nextYear - lastYear);
+            let b = nextValue - a * nextYear;
+            ret[factorName] = {a, b, lastYear};
+        });
+        let factorChangeEvent = new CustomEvent('factor_changed', {'detail': ret});
+        document.dispatchEvent(factorChangeEvent);
+
+        setTimeout(() => {
+            // when factor is changed during the 1000/15 ms, emit again
+            if (isFactorChanged) {
+                _emitFactorEvent();
+                return;
+            }
+            // if not, finish the emitting loop
+            isFactorEmitting = false;
+        }, 1000 / 15);
+    }
+
+    emitFactorEvent();
+
+    // MARK: Timeline
+
     let dragTimeline = d3.behavior.drag()
         .origin((d) => ({x: xScale(d.time), y: 0}))
         .on('drag', timelineDragged);
@@ -370,6 +419,7 @@ function draw_factor(data) {
     }
 
     function emitTimelineEvent(i) {
+        // emit timeline event for
         let id = null;
         if (selectedTime.length === 1) {
             id = 'center';
@@ -380,93 +430,8 @@ function draw_factor(data) {
         document.dispatchEvent(timeChangeEvent);
     }
 
-    function emitFactorEvent() {
-        if (isFactorEmitting) {
-            isFactorChanged = true;
-            return;
-        }
-        _emitFactorEvent();
-    }
-
-    function _emitFactorEvent() {
-        console.log("EmitFactor");
-        isFactorChanged = false;
-        isFactorEmitting = true;
-        let ret = {};
-        factorList.forEach((factorName) => {
-            let values = data[factorName].values;
-            let lastValueItem = values[values.length - 1];
-            let lastYear = lastValueItem.year;
-            let lastValue = lastValueItem.value;
-            let nextYear = maxYear;
-            let nextValue = factorValue[factorName];
-            let a = (nextValue - lastValue) / (nextYear - lastYear);
-            let b = nextValue - a * nextYear;
-            ret[factorName] = {a, b, lastYear};
-        });
-        let factorChangeEvent = new CustomEvent('factor_changed', {'detail': ret});
-        document.dispatchEvent(factorChangeEvent);
-        setTimeout(() => {
-            if (isFactorChanged) {
-                _emitFactorEvent();
-                return;
-            }
-            isFactorEmitting = false;
-        }, 1000 / 15);
-    }
-
-    emitFactorEvent();
-
-    function modeChangedEvent(numYear) {
-        if (numYear === selectedTime.length) return;
-        if (numYear === 1) {
-            secondSelectedTime = selectedTime[1];
-            selectedTime.splice(1,1);
-            updateTimeline();
-            emitTimelineEvent(0);
-        } else { // numYear === 2
-            let secondTime = secondSelectedTime.time;
-            if (secondTime < selectedTime[0].time)
-                selectedTime.splice(0,0, {time: secondTime});
-            else
-                selectedTime.splice(1,0, {time: secondTime});
-            updateTimeline();
-            emitTimelineEvent(0);
-            emitTimelineEvent(1);
-        }
-    }
-    factorEvents.modeChangedEvent = modeChangedEvent;
-
-    function getFactor(time,name) {
-        let factorData = lineData.filter((d) => {
-            return d.id === name;
-        });
-        if (factorData.length !== 1) {
-            return null;
-        }
-        factorData = factorData[0].values;
-        let upperBound = factorData.filter((d) => {
-            return d.year >= time;
-        });
-        let lowerBound = factorData.filter((d) => {
-            return d.year <= time;
-        });
-        if (lowerBound.length === 0) return null;
-        upperBound = upperBound[0];
-        lowerBound = lowerBound[lowerBound.length - 1];
-        if (upperBound.year === lowerBound.year) {
-            return upperBound.value;
-        }
-        let t =  (time - lowerBound.year) / (upperBound.year - lowerBound.year);
-        let ret = Lerp(lowerBound.value, upperBound.value, t);
-        return ret;
-    }
-
-    function Lerp(from,to,t) {
-        return from * (1-t) + to * t;
-    }
-
     function updateTimeline() {
+        // update & enter model for timeline
         let timeLine = g.selectAll('.timeline')
                         .data(selectedTime);
 
@@ -503,6 +468,7 @@ function draw_factor(data) {
     }
 
     function setFactorValue(selection) {
+        // Factor Value in timeline
         selection.attr('class', 'factor-value')
                 .text((d) => {
                     let factor = getFactor(d.time, selectedFactor);
@@ -521,6 +487,7 @@ function draw_factor(data) {
     }
 
     function setFactorValueCircle(selection) {
+        // Circle for point where timeline and factor graph meets
         selection.attr('class', 'factor-value-circle')
             .attr('transform', d3.transform().translate((d) => {
                 let factor = getFactor(d.time, selectedFactor);
@@ -537,9 +504,61 @@ function draw_factor(data) {
     }
 
     updateTimeline();
-
     updateFocused();
 
-}
+    //Mark: Mode changed (number of years)
 
+    function modeChangedEvent(numYear) {
+        if (numYear === selectedTime.length) return;
+        if (numYear === 1) {
+            secondSelectedTime = selectedTime[1];
+            selectedTime.splice(1,1);
+            updateTimeline();
+            emitTimelineEvent(0);
+        } else { // numYear === 2
+            let secondTime = secondSelectedTime.time;
+            if (secondTime < selectedTime[0].time)
+                selectedTime.splice(0,0, {time: secondTime});
+            else
+                selectedTime.splice(1,0, {time: secondTime});
+            updateTimeline();
+            emitTimelineEvent(0);
+            emitTimelineEvent(1);
+        }
+    }
+    factorEvents.modeChangedEvent = modeChangedEvent;
+
+    // MARK: helper functions
+
+    function getFactor(time,name) {
+        let factorData = lineData.filter((d) => {
+            return d.id === name;
+        });
+        if (factorData.length !== 1) {
+            return null;
+        }
+        factorData = factorData[0].values;
+        let upperBound = factorData.filter((d) => {
+            return d.year >= time;
+        });
+        let lowerBound = factorData.filter((d) => {
+            return d.year <= time;
+        });
+        if (lowerBound.length === 0) return null;
+        upperBound = upperBound[0];
+        lowerBound = lowerBound[lowerBound.length - 1];
+        if (upperBound.year === lowerBound.year) {
+            return upperBound.value;
+        }
+        let t =  (time - lowerBound.year) / (upperBound.year - lowerBound.year);
+        let ret = Lerp(lowerBound.value, upperBound.value, t);
+        return ret;
+    }
+
+    function Lerp(from,to,t) {
+        return from * (1-t) + to * t;
+    }
+
+}
+// for navigation
 var factorEvents = {};
