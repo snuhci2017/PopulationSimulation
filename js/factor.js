@@ -365,6 +365,7 @@ function draw_factor(data) {
                 .translate(xScale(value), 0)
             );
         d3.select(this).select('.factor-value').call(setFactorValue);
+        d3.select(this).select('.factor-value-circle').call(setFactorValueCircle);
         emitTimelineEvent(i);
     }
 
@@ -475,6 +476,7 @@ function draw_factor(data) {
             );
 
         timeLine.select('.factor-value').call(setFactorValue);
+        timeLine.select('.factor-value-circle').call(setFactorValueCircle);
 
         let timeLineEnter = timeLine
                                 .enter()
@@ -491,6 +493,8 @@ function draw_factor(data) {
                 .attr('width', 20).attr('height', chartHeight+10).attr('x', -10).attr('y', -10);
         timeLineEnter.append('text')
                 .call(setFactorValue);
+        timeLineEnter.append('circle')
+                .call(setFactorValueCircle);
 
         timeLine.exit()
             .transition()
@@ -514,6 +518,22 @@ function draw_factor(data) {
                     return [-5, yScales[selectedFactor](factor)];
                 }))
                 .attr('text-anchor', 'end');
+    }
+
+    function setFactorValueCircle(selection) {
+        selection.attr('class', 'factor-value-circle')
+            .attr('transform', d3.transform().translate((d) => {
+                let factor = getFactor(d.time, selectedFactor);
+                if (factor === null) return [0,0]
+                return [0, yScales[selectedFactor](factor)]
+            }))
+            .attr('r', (d) => {
+                let factor = getFactor(d.time, selectedFactor);
+                if (factor === null) return 0;
+                return 5;
+            })
+            .attr('z-index', 1)
+            .attr('fill', colorScale(selectedFactor))
     }
 
     updateTimeline();
