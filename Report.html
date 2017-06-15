@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <style>
       .container {
-        max-width: 800px;
+        max-width: 850px;
         margin-left: auto;
         margin-right: auto;
       }
@@ -76,7 +76,7 @@
 
       <h5>A. 신생아 수</h5>
       <p>
-        신생아 수는 국내통계포털에서 출생아수 및 출생성비 를 통해 알 수 있었다. [<a href="http://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_2KAA206&conn_path=I3">link</a> 해당 자료는 통계청의 인구동향조사를 토대로 만들어 졌다.
+        신생아 수는 국내통계포털에서 출생아수 및 출생성비 를 통해 알 수 있었다. [<a href="http://kosis.kr/statHtml/statHtml.do?orgId=101&tblId=DT_2KAA206&conn_path=I3">link</a>] 해당 자료는 통계청의 인구동향조사를 토대로 만들어 졌다.
       </p>
 
       <h5>B. 가임기 여성수</h5>
@@ -93,7 +93,7 @@
 
       <h5>B. 교육비 지출비중</h5>
       <p>
-        가계지출에서 교육비가 차지하는 비중으로 결국엔 자녀 교육비 비중과 비슷하다. 서울연구데이터서비스 에서 가져온 데이터로 1968년도부터 2008년까지의 자료를 사용하였다. [<a href="http://data.si.re.kr/node/338">linke</a>]
+        가계지출에서 교육비가 차지하는 비중으로 결국엔 자녀 교육비 비중과 비슷하다. 서울연구데이터서비스 에서 가져온 데이터로 1968년도부터 2008년까지의 자료를 사용하였다. [<a href="http://data.si.re.kr/node/338">link</a>]
       </p>
 
       <h5>C. 초혼 연령</h5>
@@ -115,14 +115,14 @@
 
     <div class="container">
       <h2>III. Contents and Analysis</h2>
-
-      <img src="assets/screenshots/shot_1.png" />
-      <img src="assets/screenshots/shot_2.png" />
-      <img src="assets/screenshots/shot_3.png" />
-      <img src="assets/screenshots/shot_4.png" />
-      <img src="assets/screenshots/shot_5.png" />
-
+      
       <h3> 1. Overall </h3>
+      
+      <!--<img src="assets/screenshots/shot_1.png" />-->
+      <img src="assets/screenshots/shot_3.png" />
+      <img src="assets/screenshots/shot_2.png" />
+      <img src="assets/screenshots/shot_5.png" />
+      <img src="assets/screenshots/shot_4.png" />
 
       <h3> 2. Navigator </h3>
       
@@ -173,12 +173,22 @@
         이제 링차트의 여러 기능에 대해서 하나씩 설명해보겠다.
       </p>
            
+      <h4>i. 라벨</h4>
       <p>
         먼저, 링 차트에는 3개의 계층 안쪽으로는 해당 연도를 보여주고, 바깥쪽으로는 연령대를 시곗바늘 형태로 보여준다. 처음에는 이 부분이 없었는데, 유저 스터디를 통해 해당 연도와 연령대를 알기 쉽게 하기 위한 라벨이 있으면 좋겠다는 피드백을 받아 수정하였다.
       </p>
+    
+      <h4>ii. 색깔</h4>
+      <p>
+        인지적으로 좋은 색깔을 고르기 위해서 많은 고민을 하였지만, 쉽지 않았다. 우선 연령대의 경우 나이라는 수치에 집중하면 sequential이지만 각각을 별개의 카테고리라고 생각하면 categorical이라는 특징을 가지고 있다. 그런데 전체를 sequential한 색깔로 나타내면, 5세 간격의 경우에 칸이 너무 많아서 옆 칸 끼리의 차이가 너무 미세하다는 단점이 있다. 그런 경우에 연도를 변화시켰을 때에 나타나는 차이도 적어보일 수 있다. 따라서 우리는 우선 categorical한 색깔을 선택하기로 했고, <a href="http://colorbrewer2.org/#type=sequential&scheme=BuGn&n=3">Color Brewer</a>에서 qualitative에서 class 수가 3개인 것, 4개인 것을 골라 첫 번째, 두 번째 계층에 대한 색을 채웠고, 마지막 계층은 색깔 팔레트에서 서로 다른 색을 가져왔다. 그러나 색깔이 너무 많으면 인지적으로 해석하기 어렵다는 피드백을 받아, 수정하기로 했다. sequential과 categorial의 성질을 적당히 섞어서, 20세 단위의 분류에서는 categorial 색깔을 고르고, 그 내부의 5세 단위의 분류에서는 해당하는 색깔에 대한 sequential 색깔을 고르기로 하였다. 각 색깔에 대한 sequential 색깔은 <a href="https://material.io/guidelines/style/color.html#color-color-palette">Google Material Color</a>를 참고하였다. 그 결과 현재와 같은 색깔이 결정되었다.
+      </p>
+    
+      <h4>iii. 마우스오버</h4>
       <p>
         각 부분에 마우스오버를 하면 그 부분의 면적이 넓어지면서 라벨이 링 차트 중앙에 표시된다. 이러한 변화를 준 이유는 사용자에게 클릭을 할 수 있다는 피드백을 제공해주기 위함이었다. 아무런 변화가 없으면 유저가 클릭 가능하다는 것을 알지 못하였고, 변화가 너무 크면 오히려 유저가 마우스오버만으로 필요한 정보가 다 나타나는 것이라고 생각해서 클릭을 하지 않기도 하기 때문에, 현재와 같은 변화가 적절하다고 판단하였다.
       </p>
+    
+      <h4>iv. 클릭</h4> 
       <p>
         클릭을 하면 다음과 같은 변화가 나타난다. 먼저 옆 사이드에 해당 연령대의 인구수가 숫자로 표시되고, 보라색은 자녀 세대, 파란색은 부모 세대를 나타낸다는 설명과 함께 각각의 연령 범위를 보여준다. 그리고 링 차트에는 자녀 세대가 보라색으로, 부모 세대가 파란색으로 색칠된다. Opacity를 통해 해당 연령과 관련된 세대의 밀도를 나타내었다. 이를 통해 사용자는 현재 선택한 세대가 어느 세대의 출산으로부터 영향을 받았는지, 그리고 어느 세대의 인구 수에 영향을 출 것인지를 볼 수 있다.
       </p>
@@ -187,13 +197,13 @@
       <img src="assets/screenshots/population_chart_4.png" />
 
       <h3> 4. Factor Graphs </h3>
-      <img src="assets/screenshots/factor_graph_1.png" />
-      <img src="assets/screenshots/factor_graph_2.png" />
+      
       
       <p>
         Factor graph는 두 가지 역할을 수행하고 있다. 첫 번째는 위의 인구분포 차트의 시간을 조정하는 기능, 두 번째는 factor들의 미래 값을 조정해보는 것이다. Factor 그래프가 라인 그래프로 결정한 이유는 미래 값을 조정하였을 때, 중간 값들이 어떤 형태로 추측이 되었는지를 시각적으로 보여주기 때문이고 이미 x축이 시간이기 때문에 시간을 조정하는 기능을 Factor 그래프에 넣기로 결정하였다.
       </p>
-      [사진 : Factor 그래프 현재 버전]
+      <img src="assets/screenshots/factor_graph_1.png" />
+      <img src="assets/screenshots/factor_graph_2.png" />
 
       <h4>i. 핸들</h4>
       <p>
@@ -351,7 +361,7 @@
     <hr />
     <div class="blank"></div>
 
-    Last Modified: 2017/06/06
+    Last Modified: 2017/06/15
 
   </body>
 </html>
