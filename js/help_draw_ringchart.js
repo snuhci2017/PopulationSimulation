@@ -1,14 +1,16 @@
-
+// for tranlate
 function set_translate(x, y) {
     return 'translate(' + x + ',' + y + ')';
 }
 
+// for opacity
 function set_opacity(op) {
     var gs = $("#population-container .slice");
     for (var i=0; i<gs.length; i++) {
         gs[i].style.opacity = op;
     }
 }
+
 
 function name2range(text) {
     if (text.toString().endsWith('f')) {
@@ -24,6 +26,8 @@ function title_function(d) {
     return d[4]['num'];
 }
 
+
+// return description legend for each age range
 function legend_function(type, d, title=false) {
     var value = title? d[type] : d[4][type];
     value = value.toFixed(2);
@@ -32,6 +36,14 @@ function legend_function(type, d, title=false) {
     else if (title) value = value + '명';
     var description = "<span id='value'>" + value + "</span>";
     if (!title && type!=='num') {
+        ///////////////////////////////////////////////////
+        //
+        // if this is not a title (meaning representing one type of age range)
+        // and this is not the first sidebar,
+        // then it describes about children and parents generation
+        // instead of old ratio or children number
+        //
+        ////////////////////////////////////////////////////
         var data, start, end, range = "";
         function get_start(ages) {
             var val, len, min = 9999;
@@ -107,6 +119,13 @@ function set_title(g, text, _class = 'title') {
     }
 
 }
+
+//////////////////////////////////////////
+//
+// helper functions for drawing ringchart
+//
+/////////////////////////////////////////
+
 
 function get_start_angle(d,ref) {
     if (ref) {

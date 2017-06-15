@@ -1,3 +1,4 @@
+// number of ring chart
 var numChart = 1;
 
 /* event
@@ -9,13 +10,14 @@ var numChart = 1;
 var firstyear = inityear;
 var secondyear = curryear;
 
-
+// draw ringchart when window is first loaded or resized
 function draw_population() {
     set_display();
     draw_ringchart('first', firstyear);
     if (numChart === 2) draw_ringchart('second', secondyear);
 }
 
+// eventlistener for changing time in factor graph
 document.addEventListener("time_changed", function(e){
     var _year = e.detail.year, _id = e.detail.id;
     if (_id === 'center') {
@@ -47,6 +49,7 @@ document.addEventListener("time_changed", function(e){
     }
 });
 
+// eventlistener for changing factor values in factor graph
 document.addEventListener("factor_changed", function(e){
     var f1 = e.detail['marriage age'],
         f2 = e.detail['education rate'],
@@ -55,6 +58,7 @@ document.addEventListener("factor_changed", function(e){
     set_simulation_data(f1, f2, f3, f4);
 });
 
+// setting for changing numChart
 function setNumChart(_numChart) {
 
     if (numChart === 1 && _numChart === 2) {

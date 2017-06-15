@@ -1,3 +1,5 @@
+
+// set size of ringchart and sidebars
 function set_display(){
 
     var imgurl = {
@@ -29,6 +31,7 @@ function set_display(){
         valuetoken_fontsize = 0.03 * w_ringchart + 'px';
     }
 
+    // draw sidebars with images
     function draw_side(keyword) {
         var name;
         switch (keyword) {

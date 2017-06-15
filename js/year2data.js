@@ -92,17 +92,7 @@ function set_simulation_data(f1, f2, f3, f4) {
     var ages = ['0f', '5f', '10f', '15f', '20f', '25f', '30f', '35f', '40f', '45f', '50f', '55f', '60f', '65f', '70ormore'];
     // set simulated value from curryear+5 to endyear
     var get_birthrate = function(v1, v2, v3, v4){
-        /*
-        var coef0 = [-5.1093, 0.1305, 0.0083, 0.0103, 0.0101];
-        var coef1 = [-0.0265, 0.0472, -0.0168, 0.0609, 0.1934, -0.1046];
-        var coef2 = [-2.3166, -0.0185, -0.0909, -0.2672];
-        var value = 0;
-        value += coef0[0] + coef0[1]*v1 + coef0[2]*v2 + coef0[3]*v3 + coef0[4]*v4;
-        value += coef1[0]*v1*v2 + coef1[1]*v1*v3 + coef1[2]*v1*v4 + coef1[3]*v2*v3 + coef1[4]*v2*v4 + coef1[5]*v3*v4;
-        value += coef2[0]*v1*v1 + coef2[1]*v2*v2 + coef2[2]*v3*v3 + coef2[3]*v4*v4;
-        console.log(v1,v2,v3,v4,value);
-        */
-        //value = 46.66 - (v1+v2+v3+v4) * 0.0429;
+        //// this coefs are from simulation
         value = 113 - (v1+v2+v3+v4)*0.4;
         return value;
     };
@@ -115,6 +105,7 @@ function set_simulation_data(f1, f2, f3, f4) {
     for (var year = curryear+5; year<=endyear; year+=5) {
         var babynum = 0;
         populationData[year] = {'total':{'0f':0}, 'female':{}};
+        // set population value from previous year
         for (var i=1; i<ages.length; i++) {
             if (i===ages.length-1)
                 populationData[year]['total'][ages[i]] = (populationData[year-5]['total'][ages[i]] + populationData[year-5]['total'][ages[i-1]])/2;
@@ -124,6 +115,7 @@ function set_simulation_data(f1, f2, f3, f4) {
         for (var i=0; i<ages.length; i++) {
             populationData[year]['female'][ages[i]] = populationData[year]['total'][ages[i]]/2;
         }
+        // now calculate number of babies from birth rate and number of women between 15 and 49
         var br = 0, women = 0, prev_women = 0;
         for (var y = year-4; y <= year; y++) {
             br += simulate(y);
@@ -149,7 +141,11 @@ function set_simulation_data(f1, f2, f3, f4) {
 }
 
 function update_relation(sy, ey) {
+
+    // this distribution is that of 2015.
+    // we assume that birthrate distribution in the future is same as that of 2015.
     var babydist = {15:0.00087, 20:0.03344, 25:0.19402, 30:0.47128, 35:0.239, 40:0.05277, 45:0.00566};
+
     for (var year=sy; year<=ey; year+=5) {
         if (!(year in relationData))
             relationData[year] = {'parent':{}, 'baby':{}};

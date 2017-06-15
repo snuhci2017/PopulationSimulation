@@ -1,0 +1,64 @@
+/*
+#population-container {
+  //display: flex;
+  //flex-direction: row;
+}
+*/
+#ring-chart, .side {
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: auto;
+  margin-bottom: auto; }
+
+.ring-chart {
+  padding: 0;
+  height: 100%;
+  margin-left: auto;
+  margin-right: auto;
+  margin-top: auto;
+  margin-bottom: auto; }
+
+.ring-chart#second {
+  display: none; }
+
+.side {
+  display: flex;
+  flex-direction: column;
+  margin-top: auto;
+  margin-bottom: auto; }
+  .side div {
+    min-width: 100px;
+    max-width: 280px;
+    background-color: #ffffbf;
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    padding: 1px; }
+  .side img, .side svg, .side p {
+    margin-top: auto;
+    margin-bottom: auto;
+    line-height: normal;
+    vertical-align: middle; }
+  .side img {
+    height: 80%;
+    width: 30%;
+    float: left; }
+  .side .number, .side .work, .side .children {
+    flex: 1;
+    font-size: 12pt; }
+    .side .number span#name:hover, .side .work span#name:hover, .side .children span#name:hover {
+      background-color: #ffcc00;
+      cursor: pointer; }
+    .side .number span#name-detail, .side .work span#name-detail, .side .children span#name-detail {
+      background-color: #ffcc00;
+      font-size: 10pt;
+      display: none; }
+    .side .number span#value, .side .work span#value, .side .children span#value {
+      font-size: 24pt; }
+
+#side-left {
+  float: left; }
+
+#side-right {
+  float: right; }

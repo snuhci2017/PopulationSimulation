@@ -21,6 +21,12 @@ function draw_ringchart(element_id, year){
     var g = svg.append("g")
        .attr("transform", set_translate(width/2, height/2));
 
+    ////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////
+    //
+    //  preprocessing data start
+    //
+    //
     var data_dic = [
         {},
         {},
@@ -84,6 +90,13 @@ function draw_ringchart(element_id, year){
             key2num[keys[i]] = curr_data['num']
         }
     }
+
+
+    // preprocessing data end
+    //
+    // /////////////////////////////////////////////////////
+    // /////////////////////////////////////////////////////
+
     var ref = data_slices[0];
     var next_ref = ref;
     var last_refs = [];
@@ -123,6 +136,7 @@ function draw_ringchart(element_id, year){
           .style("stroke-width", 0.1*thickness)
           .attr("class","path form");
 
+    // add text for label
     slices.append('text')
           .attr('transform', function(d, i) {
               var centroid = arc.centroid(d);
@@ -135,6 +149,7 @@ function draw_ringchart(element_id, year){
           .style('font-size', valuetoken_fontsize)
           .style('text-anchor', 'middle');
 
+    // set title to year
     set_title(g, year);
 
     var other_slices = null;
@@ -145,6 +160,7 @@ function draw_ringchart(element_id, year){
         other_slices = slices_dic[other_id];
     }
 
+    ////////////// set mouseover /////////////////////
     slices
         .on("mouseover", function(d, i) {
             if (d[3]===4) return;
@@ -162,6 +178,7 @@ function draw_ringchart(element_id, year){
             if (clicked === null) display_legend(d, false);
         });
 
+    /////////// set click of current ringchart //////////////
     slices.on("click", function(d, i) {
         if (d[3]===4) return;
         if (clicked === null || clicked !== i) {
@@ -179,6 +196,8 @@ function draw_ringchart(element_id, year){
             clicked = null;
         }
     });
+
+    /////////// set click of another ringchart //////////////
     if (other_slices!==null) {
         other_slices[0].on("click", function(d, i) {
             if (clicked === null || clicked !== i) {
@@ -195,6 +214,7 @@ function draw_ringchart(element_id, year){
         });
     }
 
+    //////////// set description for sidebars /////////////////
     _display_legend("." + element_id + ".tot.number", legend_function('num', data_dic[0][''], true));
     _display_legend("." + element_id + ".tot.work", legend_function('ecorate', data_dic[0][''], true));
     _display_legend("." + element_id + ".tot.children", legend_function('childrate', data_dic[0][''], true));
@@ -236,6 +256,7 @@ function draw_ringchart(element_id, year){
         }
     }
 
+    /////// display children generation & parents generation ////////////
     function display_relation(d, i, eid) {
         function _display_color(_id, val, blue) {
             var r = document.getElementById(eid+'-slice'+_id);
